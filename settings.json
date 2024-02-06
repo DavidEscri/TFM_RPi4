@@ -1,0 +1,33 @@
+{
+    "metadata": {
+		"description": "Fichero de configuración para el TFM de Jose David Escribano Orts",
+		"version": "0.1"
+	},
+    "paths": {
+        "images_test_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_test",
+            "RPi4": ""
+        },
+		"images_result_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_result",
+            "RPi4": ""
+        },
+        "logs_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\logs",
+            "RPi4": ""
+        },
+        "yolo_classes_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\classes",
+            "RPi4": ""
+        },
+        "yolo_models_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\models",
+            "RPi4": ""
+        }
+    },
+    "hosts": {
+        "raspberry": {
+            "IP": "192.168.18.222"
+        }
+    }
+}
