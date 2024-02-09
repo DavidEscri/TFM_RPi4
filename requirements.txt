@@ -1,0 +1,10 @@
+setuptools~=69.0.3
+osmnx~=1.8.1
+requests~=2.31.0
+geopy~=2.4.1
+smbus2~=0.4.3
+opencv-python~=4.7.0.72
+torch~=2.1.2
+PyYAML~=6.0.1
+yolov5~=7.0.13
+python-dotenv~=1.0.0

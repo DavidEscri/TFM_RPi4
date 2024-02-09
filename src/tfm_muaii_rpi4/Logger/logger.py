@@ -6,8 +6,10 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import logging
 import os
+import stat
+import tarfile
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from tfm_muaii_rpi4.Environment import env
 
@@ -45,12 +47,24 @@ class _Logs:
     def get_logger(self):
         return self.__logger
 
-    def _clean_logs(self, path_logs: str):
+    def _clean_logs(self, path_dir: str):
         try:
-            pass
+            yesterday = datetime.now() - timedelta(days=1)
+            for log_file in os.listdir(path_dir):
+                log_path = os.path.join(path_dir, log_file)
+                if os.path.isdir(log_path) or not log_file.endswith(".log"):
+                    continue
+                output_log_name = log_file[:log_file.find(".")] + ".tgz"
+                output_log_path = os.path.join(path_dir, output_log_name)
+                file_log_stat = os.stat(log_path)
+                file_log_date = datetime.fromtimestamp(file_log_stat.st_mtime)
+                if file_log_date < yesterday:
+                    with tarfile.open(output_log_path, "w:gz") as tar:
+                        tar.add(log_path)
+                    os.remove(log_path)
+
         except Exception as e:
             self.__logger.error(f"Error en el empaquetado de logs: {e}", extra=__info__)
-
 
 class LogsSingleton:
     __instance = None
