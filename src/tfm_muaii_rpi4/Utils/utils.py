@@ -15,56 +15,6 @@ from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 Logs = LogsSingleton()
 
 
-class SubSystem:
-    EST_INICIANDO = 1
-    EST_EJECUTANDO = 2
-    EST_PARADO = 3
-    EST_ERR = 4
-
-    def __init__(self, info: dict):
-        self._info = info
-        self._status_service = dict()
-        self._start_time = datetime.datetime.now()
-        self._status = self.EST_INICIANDO
-        self._init_stop = 0
-        self.callback_subsystem_start = None
-        Logs.get_logger().info("Iniciado subsistema %s", info["subsystem"], extra=self._info)
-
-    @property
-    def name(self):
-        return self._info["subsystem"]
-
-    @property
-    def get_status(self) -> int:
-        return self._status
-
-    @property
-    def get_service_status(self) -> dict:
-        return self._status_service
-
-    def _set_status(self, name: str, status: int):
-        self._status_service[name] = status
-
-    @abstractmethod
-    def start(self):
-        Logs.get_logger().info("Subsistema %s levantado", self._info["subsystem"], extra=self._info)
-        self._status = self.EST_EJECUTANDO
-
-    def init_stop(self):
-        self._init_stop = time.time()
-
-    @abstractmethod
-    def stop(self):
-        time_2 = time.time()
-        time_interval = time_2 - self._init_stop
-        Logs.get_logger().info("Subsistema %s parado (%s s)", self._info["subsystem"], round(time_interval, 2),
-                               extra=self._info)
-        self._status = self.EST_PARADO
-
-    def callback_status_service_notif(self, name: str, status: int):
-        self._set_status(name, status)
-
-
 class Service:
     EST_INICIANDO = 1
     EST_EJECUTANDO = 2
@@ -129,7 +79,9 @@ class Service:
             Logs.get_logger().info("Salida de servicio %s", self._info["module_name"], extra=self._info)
 
     def _get_run_status(self):
-        """Devuelve True si el módulo se está ejecutando OK"""
+        """
+        Devuelve True si el módulo se está ejecutando
+        """
         if self._thread_srv is not None:
             return self._thread_srv.is_alive()
         else:
@@ -140,7 +92,7 @@ class Service:
 
     def critical_error(self, err, funct: str) -> None:
         """
-        Reporta un error crítico al subsistema
+        Reporta un error crítico al servicio
         :return:
         """
         Logs.get_logger().critical("Error critico en función %s en el servicio : %s", funct, err,
