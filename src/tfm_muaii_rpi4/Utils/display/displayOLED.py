@@ -60,11 +60,13 @@ class OLEDController:
 
         if current_speed is None:
             image = self._geolocation_error(draw, image)
+            Logs.get_logger().info("Mostrando imagen de GPS no disponible en display OLED", extra=__info__)
             self._display_image(image)
             return
 
         if speed_limit is None:
             image = self._speed_limit_error(draw, image, current_speed)
+            Logs.get_logger().info("Mostrando imagen de velocidad actual en display OLED", extra=__info__)
             self._display_image(image)
             return
 
@@ -91,9 +93,11 @@ class OLEDController:
         info_font = ImageFont.load_default(size=12)
         # Determinar el texto superior en función de si se supera el límite de velocidad
         if current_speed > speed_limit:
+            Logs.get_logger().info("Mostrando imagen de limite de velocidad superado en display OLED", extra=__info__)
             top_text = "Atencion:"
             next_top_text = "Limite de velocidad superado"
         else:
+            Logs.get_logger().info("Mostrando información sobre la ubicación actual en el display OLED", extra=__info__)
             top_text = "Conduciendo por:"
             next_top_text = "Autovia del mediterraneo, Almoradi (Alicante)"
 
@@ -161,6 +165,8 @@ class OLEDController:
         :param image: Imagen
         :return:
         """
+        Logs.get_logger().warning("No se dispone del servicio GPS para mostrar información en el display OLED",
+                                  extra=__info__)
         triangle_height = 60
         triangle_width = 70
         triangle_top_x = (OLEDConfig.WIDTH - triangle_width) // 2
@@ -201,6 +207,8 @@ class OLEDController:
         :param image: Imagen
         :return:
         """
+        Logs.get_logger().warning("No se dispone de información sobre la ubicación actual para mostrar en display "
+                                  "OLED", extra=__info__)
         text_x = (OLEDConfig.WIDTH - 64) // 2
         text_y = (OLEDConfig.HEIGHT - 64) // 5
 
