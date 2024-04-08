@@ -43,6 +43,7 @@ class _startUpDownMgr:
             if counter % 1800 == 0:
                 date = datetime.now()
                 if date.hour == 3 and counter > 3600:
+                    # Reinicio si la RPi4 lleva encendido más de 1 hora encendida y son las 3 de la mañana.
                     self.exit_flag = self.SYS_RESTART
         self.exit_app(self.exit_flag)
 

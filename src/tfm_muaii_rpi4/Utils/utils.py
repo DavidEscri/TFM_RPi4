@@ -70,7 +70,7 @@ class Service:
             self._stop_thread.set()
             self._thread_srv.join(self.sleep_period + 1)
             if self._thread_srv.is_alive():
-                Logs.get_logger().warn("No fue posible la salida de servicio %s hilo %s", self._info["module_name"],
+                Logs.get_logger().warning("No fue posible la salida de servicio %s hilo %s", self._info["module_name"],
                                        self._thread_srv.name, extra=self._info)
             else:
                 Logs.get_logger().info("Salida de servicio %s hilo %s", self._info["module_name"],

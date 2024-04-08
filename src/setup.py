@@ -6,8 +6,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'setuptools~=69.0.3',
-        'osmnx~=1.8.1',
+        'setuptools~=65.5.1',
+        'build~=1.2.1',
         'geopy~=2.4.1',
         'python-dotenv~=1.0.0',
         'opencv-python~=4.7.0.72',
@@ -15,6 +15,8 @@ setup(
         'PyYAML~=6.0.1',
         'torch~=2.1.2',
         'smbus2~=0.4.3',
+        'Pillow~=10.1.0',
+        'luma.oled~=3.13.0'
     ],
     url='https://github.com/DavidEscri/TFM_RPi4',
     license='',
