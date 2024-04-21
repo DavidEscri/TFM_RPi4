@@ -2,7 +2,6 @@ __author__ = "David Escribano"
 __subsystem__ = "Utils"
 __module__ = "displayOLED"
 __version__ = "1.0"
-__status__ = "Prod"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
 from luma.core.interface.serial import i2c
