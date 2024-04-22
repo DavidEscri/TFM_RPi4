@@ -6,28 +6,28 @@
     "paths": {
         "images_test_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_test",
-            "RPi4": ""
+            "RPi4": "/home/pi/resources/images/images_result"
         },
 		"images_result_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_result",
-            "RPi4": ""
+            "RPi4": "/home/pi/resources/images/images_result"
         },
         "logs_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\logs",
-            "RPi4": ""
+            "RPi4": "/home/pi/resources/logs/"
         },
         "yolo_classes_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\classes",
-            "RPi4": ""
+            "RPi4": "/home/pi/resources/yolo/classes"
         },
         "yolo_models_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\models",
-            "RPi4": ""
+            "RPi4": "/home/pi/resources/yolo/models"
         }
     },
     "hosts": {
         "raspberry": {
-            "IP": "192.168.18.222"
+            "IP": "192.168.18.200"
         }
     }
 }
