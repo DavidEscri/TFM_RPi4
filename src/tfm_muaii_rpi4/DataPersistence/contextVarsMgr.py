@@ -7,6 +7,7 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 import os
 
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
+from tfm_muaii_rpi4.Utils.utils import Service
 
 Logs = LogsSingleton()
 
@@ -18,12 +19,13 @@ class ContextVarsConst:
     PRECISION_GNSS = "precision_gnss"
 
 
-class _ContextVarsMgr:
+class _ContextVarsMgr(Service):
     def __init__(self):
+        super().__init__(__info__)
         try:
             self._initDefaultContextVars()
         except Exception as e:
-            Logs.get_logger().critical(f"Error en variables de contexto: {e}", extra=__info__)
+            super().critical_error(e, "init")
 
     def _initDefaultContextVars(self):
         self._contextVarDict: dict = {}
@@ -33,10 +35,16 @@ class _ContextVarsMgr:
         self._contextVarDict.setdefault(ContextVarsConst.PRECISION_GNSS, 0)
 
     def start(self):
-        pass
+        try:
+            super().start()
+        except Exception as e:
+            super().critical_error(e, "start")
 
     def stop(self):
-        pass
+        try:
+            super().stop()
+        except Exception as e:
+            super().critical_error(e, "stop")
 
     def set_context_var(self, var: str, value: any) -> None:
         self._contextVarDict[var] = value

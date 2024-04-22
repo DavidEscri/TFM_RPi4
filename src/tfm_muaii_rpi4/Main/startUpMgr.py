@@ -4,20 +4,20 @@ __module__ = "startUpMgr"
 __version__ = "0.1"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
-import logging
 import os
-import threading
 import time
 from datetime import datetime
 
+from tfm_muaii_rpi4.DataPersistence.dataPersistenceMgr import DataPersistenceMgrSingleton
 from tfm_muaii_rpi4.PeopleDetector.peopleCounter import PeopleCounterSingleton
+from tfm_muaii_rpi4.GPSController.gpsController import GPSControllerSingleton
 from tfm_muaii_rpi4.Environment.env import EnvSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 Logs = LogsSingleton()
 
 
-class _startUpDownMgr:
+class _StartUpDownMgr:
     SYS_SHUTDOWN: int = 2
     SYS_RESTART: int = 1
     NOT_EXIT: int = 0
@@ -26,7 +26,9 @@ class _startUpDownMgr:
         try:
             Logs.get_logger().info(f"Inicio Aplicación {datetime.now()}....", extra=__info__)
             self.env = EnvSingleton()
+            self.data_persistence = DataPersistenceMgrSingleton()
             self.people_counter = PeopleCounterSingleton()
+            self.gps_controller = GPSControllerSingleton()
             self.exit_flag = self.NOT_EXIT
         except Exception as e:
             self._critical_error(e, "init")
@@ -57,10 +59,14 @@ class _startUpDownMgr:
         Logs.get_logger().info("Parada del sistema en %s segundos", round(time_interval, 2), extra=__info__)
 
     def _start_services(self):
+        self.data_persistence.start()
         self.people_counter.start()
+        self.gps_controller.start()
 
     def _stop_services(self):
         self.people_counter.stop()
+        self.data_persistence.stop()
+        self.gps_controller.stop()
 
     def exit_app(self, exit_control: int):
         self.stop()
@@ -75,11 +81,11 @@ class _startUpDownMgr:
                                    extra=__info__)
 
 
-class startUpMgrSingleton:
+class StartUpMgrSingleton:
     # storage for the instance reference
     __instance = None
 
     def __new__(cls):
-        if startUpMgrSingleton.__instance is None:
-            startUpMgrSingleton.__instance = _startUpDownMgr()
-        return startUpMgrSingleton.__instance
+        if StartUpMgrSingleton.__instance is None:
+            StartUpMgrSingleton.__instance = _StartUpDownMgr()
+        return StartUpMgrSingleton.__instance
