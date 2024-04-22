@@ -6,10 +6,13 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import time
 import datetime
-
-from geopy.geocoders import Nominatim
 import geopy.distance
+from geopy.geocoders import Nominatim
 
+from tfm_muaii_rpi4.Logger.logger import LogsSingleton
+
+
+Logs = LogsSingleton()
 
 class Coordinates:
     def __init__(self, latitude: float, longitude: float):
@@ -27,30 +30,21 @@ class Coordinates:
 
 class GeoUtils:
 
-    @staticmethod
-    def get_location(coordenadas: Coordinates) -> geopy.location.Location:
-        """
-        Obtención de la localización definida por la libreria geopy a partir de unas coordenadas.
-        :param coordenadas: Coordenadas de las que se quiere conocer información
-        :return: Localización definida por la libreria de goepy
-        """
-        geolocator = Nominatim(user_agent="my_geocoder")
-        location = geolocator.reverse(coordenadas.get_coordinates(), language='es')
-        return location
-
-    def get_max_speed_location(self, location: geopy.location.Location) -> int:
+    def get_max_speed_location(self, coordenadas: Coordinates) -> int:
         """
         Obtención de la máxima velocidad en km/h de una localizacicón definida por la libreria de geopy
-        :param location: Localización definida por la libreria de goepy
+        :param coordenadas: Coordenadas de la localización
         :return: Velocidad en km/h
         """
-        max_speed: int = 0
+        max_speed: int = None
+        geolocator = Nominatim(user_agent="my_geocoder")
+        location = geolocator.reverse(coordenadas.get_coordinates(), language='es')
         if location:
-            road_type = self.get_road_type(location)
+            road_type = self._get_road_type(location)
             # place_id = location.raw["place_id"]
             # osm_id = location.raw["osm_id"]
             # road_data = osm.geocode_to_gdf(str(place_id))
-            max_speed = self.get_road_speed_limit(road_type)
+            max_speed = self._get_road_speed_limit(road_type)
             if "address" in location.raw:
                 road_adress = location.raw["address"]
                 road_name = road_adress["road"]
@@ -59,11 +53,12 @@ class GeoUtils:
                 provincia = road_adress["state_district"]
                 # comunidad = road_adress["state"]
                 # pais = road_adress["country"]
-                print(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: {max_speed} km/h")
+                Logs.get_logger().info(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: "
+                                       f"{max_speed} km/h")
         return max_speed
 
     @staticmethod
-    def get_road_type(location: geopy.location.Location) -> str:
+    def _get_road_type(location: geopy.location.Location) -> str:
         """
         Obtención del tipo de carretera
         :param location: Localizacíon obtenida con la libreria de geopy
@@ -75,7 +70,7 @@ class GeoUtils:
         return road_type
 
     @staticmethod
-    def get_road_speed_limit(road_type: str) -> int:
+    def _get_road_speed_limit(road_type: str) -> int:
         """
         Obtención de la velocidad máxima a partir del tipo de carretera
         :param road_type: Tipo de carretera definido por Nominatim.
@@ -101,16 +96,18 @@ class GeoUtils:
         :param current_coordinates: Coordenadas actuales.
         :return: Velocidad actual
         """
+        if not isinstance(last_coordinates, Coordinates) and not isinstance(current_coordinates, Coordinates):
+            return None
         distance = geopy.distance.geodesic(last_coordinates.get_coordinates(),
                                            current_coordinates.get_coordinates()).m
         time_difference = current_coordinates.get_timestamp() - last_coordinates.get_timestamp()
         if time_difference == 0:
             return 0
         speed = distance / time_difference
-        return self.convert_ms_to_kmh(speed)
+        return self._convert_ms_to_kmh(speed)
 
     @staticmethod
-    def convert_ms_to_kmh(speed: float) -> int:
+    def _convert_ms_to_kmh(speed: float) -> int:
         """
         Conversión de velocidad de m/s a km/h
         :param speed: Velocidad en metros por segundo
@@ -146,7 +143,7 @@ if __name__ == "__main__":
     coords2 = Coordinates(38.11254, -0.78696)
     if geo_utils.is_speed_limit_exceeded(coords1, coords2):
         print("Velocidad límite superada")
-    # speed = calculate_speed(coords1, coords2)
+    # speed = geo_utils.calculate_speed(coords1, coords2)
     # speed_limit_2 = get_coordinates_data(coords1)
     # print(speed)
 
@@ -155,6 +152,6 @@ if __name__ == "__main__":
     coords2 = Coordinates(38.11828, -0.77834)
     if geo_utils.is_speed_limit_exceeded(coords1, coords2):
         print("Velocidad límite superada")
-    # speed = calculate_speed(coords1, coords2)
+    # speed = geo_utils.calculate_speed(coords1, coords2)
     # speed_limit_3 = get_coordinates_data(coords1)
     # print(speed)

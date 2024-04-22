@@ -6,6 +6,8 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import serial
 
+from tfm_muaii_rpi4.Utils.geolocation.geoUtils import Coordinates
+from tfm_muaii_rpi4.DataPersistence.contextVarsMgr import ContextVarsMgrSingleton, ContextVarsConst
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 Logs = LogsSingleton()
@@ -107,6 +109,8 @@ class NEO6Mv2:
         self._baudrate = baudrate
         self._timeout = timeout
         self._serial: serial.Serial = None
+        self._current_coordinates: Coordinates = None
+        self.context_vars_mgr = ContextVarsMgrSingleton()
 
     def open(self) -> bool:
         try:
@@ -164,6 +168,7 @@ class NEO6Mv2:
         longitude = nmea_sentence[GPGGASentence.POS_LATITUDE]
         longitude_indicator = nmea_sentence[GPGGASentence.POS_LATITUDE_INDICATOR]
         latitude, longitude = self._convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
+        self._save_coordinates(latitude, longitude)
         Logs.get_logger().info(f"Coordenadas GPS (GPGGA): {latitude} {longitude}", extra=__info__)
         satelites_used = nmea_sentence[GPGGASentence.POS_SATELLITES_USED]
         Logs.get_logger().info(f"Se están utilizando un total de {satelites_used} satelites", extra=__info__)
@@ -183,6 +188,7 @@ class NEO6Mv2:
         longitude = nmea_sentence[GPGLLSentence.POS_LATITUDE]
         longitude_indicator = nmea_sentence[GPGLLSentence.POS_LATITUDE_INDICATOR]
         latitude, longitude = self._convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
+        self._save_coordinates(latitude, longitude)
         Logs.get_logger().info(f"Coordenadas GPS (GPGLL): {latitude} {longitude}", extra=__info__)
         return True
 
@@ -197,6 +203,7 @@ class NEO6Mv2:
         longitude = nmea_sentence[GPRMCSentence.POS_LATITUDE]
         longitude_indicator = nmea_sentence[GPRMCSentence.POS_LATITUDE_INDICATOR]
         latitude, longitude = self._convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
+        self._save_coordinates(latitude, longitude)
         Logs.get_logger().info(f"Coordenadas GPS (GPRMC): {latitude} {longitude}", extra=__info__)
         return True
 
@@ -228,7 +235,7 @@ class NEO6Mv2:
         elif fix_indicator == 2:
             return True, "Modo GPS Diferencial"
         elif fix_indicator == 3:
-            return False, "Modo PPS"
+            return True, "Modo PPS"
         elif fix_indicator == 4:
             return False, "Modo Real Time Kinematic"
         elif fix_indicator == 5:
@@ -294,3 +301,10 @@ class NEO6Mv2:
             longitude_decimal *= -1
 
         return latitude_decimal, longitude_decimal
+
+    def _save_coordinates(self, latitude: float, longitude: float) -> None:
+        self._current_coordinates = Coordinates(latitude, longitude)
+        self.context_vars_mgr.set_context_var(ContextVarsConst.COORDENADAS_GPS, self._current_coordinates)
+
+    def get_coordinates(self) -> Coordinates:
+        return self.context_vars_mgr.get_context_var(ContextVarsConst.COORDENADAS_GPS)

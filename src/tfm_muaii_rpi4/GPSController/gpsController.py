@@ -10,12 +10,13 @@ import time
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 from tfm_muaii_rpi4.Utils.geolocation.NEO6Mv2 import NEO6Mv2
 from tfm_muaii_rpi4.Utils.geolocation.geoUtils import Coordinates, GeoUtils
+from tfm_muaii_rpi4.Utils.display.displayOLED import OLEDController
 from tfm_muaii_rpi4.Utils.utils import Service
 
 Logs = LogsSingleton()
 
 
-class GPSController(Service):
+class _GPSController(Service):
     PORT: str = "/dev/ttyAMA4"
     BAUDRATE: int = 9600
     TIMEOUT: float = 0.5
@@ -23,6 +24,10 @@ class GPSController(Service):
     def __init__(self):
         super().__init__(__info__, True)
         self.gps_module: NEO6Mv2 = None
+        self._geo_utils = GeoUtils()
+        self._oled_mgr = OLEDController()
+        self.current_coordinates: Coordinates = None
+        self.last_coordinates: Coordinates = None
 
     def start(self):
         try:
@@ -53,21 +58,30 @@ class GPSController(Service):
 
     def _run(self):
         try:
-            self.gps_module.read_sentence()
-            time.sleep(1)
+            while not super().need_stop():
+                self.gps_module.read_sentence()
+                if self.current_coordinates is None:
+                    self.current_coordinates = self.get_coordinates()
+                    continue
+                else:
+                    self.last_coordinates = self.current_coordinates
+                self.current_coordinates = self.get_coordinates()
+                current_speed = self._geo_utils.calculate_speed(self.last_coordinates, self.current_coordinates)
+                max_speed = self._geo_utils.get_max_speed_location(self.current_coordinates)
+                Logs.get_logger().info(f"Velocidad actual: {current_speed} km/h", extra=__info__)
+                self._oled_mgr.draw_speed_limit(max_speed, current_speed)
+                time.sleep(1)
         except Exception as e:
             Logs.get_logger().error(f"Error GPS: {e}", extra=__info__)
 
-    def get_coordinates(self):
-        latitude = self.gps_module.get_latitude()
-        longitude = self.gps_module.get_longitude()
-        return Coordinates(latitude, longitude)
+    def get_coordinates(self) -> Coordinates:
+        return self.gps_module.get_coordinates()
 
 
-class GPSControllerAgentSingleton:
+class GPSControllerSingleton:
     __instance = None
 
     def __new__(cls):
-        if GPSControllerAgentSingleton.__instance is None:
-            GPSControllerAgentSingleton.__instance = GPSController()
-        return GPSControllerAgentSingleton.__instance
+        if GPSControllerSingleton.__instance is None:
+            GPSControllerSingleton.__instance = _GPSController()
+        return GPSControllerSingleton.__instance
