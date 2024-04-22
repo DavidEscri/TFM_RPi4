@@ -23,7 +23,7 @@ class _GPSController(Service):
 
     def __init__(self):
         super().__init__(__info__, True)
-        self.gps_module: NEO6Mv2 = None
+        self._gps_module: NEO6Mv2 = None
         self._geo_utils = GeoUtils()
         self._oled_mgr = OLEDController()
         self.current_coordinates: Coordinates = None
@@ -31,26 +31,26 @@ class _GPSController(Service):
 
     def start(self):
         try:
-            self.start_gps()
+            self._start_gps()
             super().start()
         except Exception as e:
             super().critical_error(e, "start")
 
-    def start_gps(self) -> bool:
+    def _start_gps(self) -> bool:
         try:
-            self.gps_module = NEO6Mv2(self.PORT, self.BAUDRATE, self.TIMEOUT)
-            return self.gps_module.open()
+            self._gps_module = NEO6Mv2(self.PORT, self.BAUDRATE, self.TIMEOUT)
+            return self._gps_module.open()
         except Exception as e:
             Logs.get_logger().error(f"Error al iniciar GPS: {e}", extra=__info__)
             return False
 
     def stop(self):
-        self.stop_gps()
+        self._stop_gps()
         super().stop()
 
-    def stop_gps(self) -> bool:
+    def _stop_gps(self) -> bool:
         try:
-            self.gps_module.close()
+            self._gps_module.close()
             return True
         except Exception as e:
             Logs.get_logger().error(f"Error al terminar GPS: {e}", extra=__info__)
@@ -59,7 +59,7 @@ class _GPSController(Service):
     def _run(self):
         try:
             while not super().need_stop():
-                self.gps_module.read_sentence()
+                self._gps_module.read_sentence()
                 if self.current_coordinates is None:
                     self.current_coordinates = self.get_coordinates()
                     continue
@@ -75,7 +75,7 @@ class _GPSController(Service):
             Logs.get_logger().error(f"Error GPS: {e}", extra=__info__)
 
     def get_coordinates(self) -> Coordinates:
-        return self.gps_module.get_coordinates()
+        return self._gps_module.get_coordinates()
 
 
 class GPSControllerSingleton:
@@ -85,3 +85,7 @@ class GPSControllerSingleton:
         if GPSControllerSingleton.__instance is None:
             GPSControllerSingleton.__instance = _GPSController()
         return GPSControllerSingleton.__instance
+
+if __name__ == "__main__":
+    gps_module = GPSControllerSingleton()
+    gps_module.start()
