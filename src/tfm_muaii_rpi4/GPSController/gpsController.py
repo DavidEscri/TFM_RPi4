@@ -1,4 +1,4 @@
-__author__ = "David Escribano"
+__author__ = "Jose David Escribano Orts"
 __subsystem__ = "GPSController"
 __module__ = "gpsController"
 __version__ = "1.0"
@@ -22,7 +22,7 @@ class _GPSController(Service):
     TIMEOUT: float = 0.5
 
     def __init__(self):
-        super().__init__(__info__, True)
+        super().__init__(__info__, is_thread=True)
         self._gps_module: NEO6Mv2 = None
         self._geo_utils = GeoUtils()
         self._oled_mgr = OLEDController()

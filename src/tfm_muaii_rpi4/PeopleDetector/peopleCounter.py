@@ -26,7 +26,7 @@ class _PeopleCounter(Service):
     FILTER_FACTOR: float = 0.8
 
     def __init__(self, show_image=True):
-        super().__init__(__info__, True)
+        super().__init__(__info__, is_thread=True)
         self._env = EnvSingleton()
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model_path = self._env.get_path(self._env.yolo_models_path)

@@ -1,4 +1,4 @@
-__author__ = "David Escribano"
+__author__ = "Jose David Escribano Orts"
 __subsystem__ = "Utils"
 __module__ = "geoUtils"
 __version__ = "1.0"

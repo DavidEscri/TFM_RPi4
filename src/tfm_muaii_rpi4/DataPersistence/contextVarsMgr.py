@@ -21,7 +21,7 @@ class ContextVarsConst:
 
 class _ContextVarsMgr(Service):
     def __init__(self):
-        super().__init__(__info__)
+        super().__init__(__info__, is_thread=False)
         try:
             self._initDefaultContextVars()
         except Exception as e:

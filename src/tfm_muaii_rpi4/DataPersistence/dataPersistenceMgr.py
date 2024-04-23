@@ -7,10 +7,12 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 from tfm_muaii_rpi4.DataPersistence.contextVarsMgr import ContextVarsMgrSingleton
 from tfm_muaii_rpi4.DataPersistence.peoplePersistence import PeoplePersistenceSingleton
 from tfm_muaii_rpi4.DataPersistence.gpsPersistence import GpsPersistenceSingleton
+from tfm_muaii_rpi4.Utils.utils import Service
 
 
-class _DataPersistence():
+class _DataPersistence(Service):
     def __init__(self):
+        super().__init__(__info__, is_thread=False)
         self.context_vars_mgr = ContextVarsMgrSingleton()
         self.people_persistence = PeoplePersistenceSingleton()
         self.gps_persistence = GpsPersistenceSingleton()
@@ -19,11 +21,13 @@ class _DataPersistence():
         self.context_vars_mgr.start()
         self.people_persistence.star()
         self.gps_persistence.start()
+        super().start()
 
     def stop(self):
         self.context_vars_mgr.stop()
         self.people_persistence.stop()
         self.gps_persistence.stop()
+        super().stop()
 
 
 class DataPersistenceMgrSingleton:
