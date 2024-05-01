@@ -6,23 +6,23 @@
     "paths": {
         "images_test_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_test",
-            "RPi4": "/home/pi/resources/images/images_result"
+            "RPi4": "/home/pi/TFM_RPi4/resources/images/images_result"
         },
 		"images_result_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_result",
-            "RPi4": "/home/pi/resources/images/images_result"
+            "RPi4": "/home/pi/TFM_RPi4/resources/images/images_result"
         },
         "logs_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\logs",
-            "RPi4": "/home/pi/resources/logs/"
+            "RPi4": "/home/pi/TFM_RPi4/resources/logs/"
         },
         "yolo_classes_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\classes",
-            "RPi4": "/home/pi/resources/yolo/classes"
+            "RPi4": "/home/pi/TFM_RPi4/resources/yolo/classes"
         },
         "yolo_models_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\models",
-            "RPi4": "/home/pi/resources/yolo/models"
+            "RPi4": "/home/pi/TFM_RPi4/resources/yolo/models"
         }
     },
     "hosts": {
