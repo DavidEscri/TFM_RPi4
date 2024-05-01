@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 import LoadEnv
-from tfm_muaii_rpi4.Main.startUpMgr import startUpMgrSingleton
+from tfm_muaii_rpi4.Main.startUpMgr import StartUpMgrSingleton
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
 
 class TFMApp:
     def __init__(self):
-        self.start_up = startUpMgrSingleton()
+        self.start_up = StartUpMgrSingleton()
 
     def start(self):
         self.start_up.start()

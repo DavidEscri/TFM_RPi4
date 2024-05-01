@@ -19,7 +19,7 @@ class _DataPersistence(Service):
 
     def start(self):
         self.context_vars_mgr.start()
-        self.people_persistence.star()
+        self.people_persistence.start()
         self.gps_persistence.start()
         super().start()
 

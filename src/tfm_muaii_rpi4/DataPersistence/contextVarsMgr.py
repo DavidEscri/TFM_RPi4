@@ -7,6 +7,7 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 import os
 
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
+from tfm_muaii_rpi4.Utils.geolocation.geoUtils import Coordinates
 from tfm_muaii_rpi4.Utils.utils import Service
 
 Logs = LogsSingleton()
@@ -30,7 +31,7 @@ class _ContextVarsMgr(Service):
     def _initDefaultContextVars(self):
         self._contextVarDict: dict = {}
         self._contextVarDict.setdefault(ContextVarsConst.PEOPLE, 0)
-        self._contextVarDict.setdefault(ContextVarsConst.COORDENADAS_GPS, dict())
+        self._contextVarDict.setdefault(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
         self._contextVarDict.setdefault(ContextVarsConst.SATELITES_GNSS, 0)
         self._contextVarDict.setdefault(ContextVarsConst.PRECISION_GNSS, 0)
 
