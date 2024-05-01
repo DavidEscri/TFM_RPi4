@@ -67,9 +67,9 @@ class _GPSController(Service):
                     self.last_coordinates = self.current_coordinates
                 self.current_coordinates = self.get_coordinates()
                 current_speed = self._geo_utils.calculate_speed(self.last_coordinates, self.current_coordinates)
-                max_speed = self._geo_utils.get_max_speed_location(self.current_coordinates)
+                max_speed, location_info = self._geo_utils.get_max_speed_location(self.current_coordinates)
                 Logs.get_logger().info(f"Velocidad actual: {current_speed} km/h", extra=__info__)
-                self._oled_mgr.draw_speed_limit(max_speed, current_speed)
+                self._oled_mgr.draw_speed_limit(max_speed, current_speed, location_info)
                 time.sleep(1)
         except Exception as e:
             Logs.get_logger().error(f"Error GPS: {e}", extra=__info__)

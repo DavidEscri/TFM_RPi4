@@ -14,6 +14,7 @@ from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 Logs = LogsSingleton()
 
+
 class Coordinates:
     def __init__(self, latitude: float, longitude: float):
         self.data: dict = {
@@ -30,13 +31,14 @@ class Coordinates:
 
 class GeoUtils:
 
-    def get_max_speed_location(self, coordenadas: Coordinates) -> int:
+    def get_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
         """
         Obtención de la máxima velocidad en km/h de una localizacicón definida por la libreria de geopy
         :param coordenadas: Coordenadas de la localización
         :return: Velocidad en km/h
         """
         max_speed: int = None
+        location_info: str = ""
         geolocator = Nominatim(user_agent="my_geocoder")
         location = geolocator.reverse(coordenadas.get_coordinates(), language='es')
         if location:
@@ -53,9 +55,10 @@ class GeoUtils:
                 provincia = road_adress["state_district"]
                 # comunidad = road_adress["state"]
                 # pais = road_adress["country"]
+                location_info = f"{road_name}, {ciudad} ({provincia})"
                 Logs.get_logger().info(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: "
                                        f"{max_speed} km/h")
-        return max_speed
+        return max_speed, location_info
 
     @staticmethod
     def _get_road_type(location: geopy.location.Location) -> str:

@@ -44,7 +44,7 @@ class OLEDController:
         """
         self._device.display(image)
 
-    def draw_speed_limit(self, speed_limit, current_speed):
+    def draw_speed_limit(self, speed_limit, current_speed, location_info: str):
         """
         Se dibuja la pantalla según los valores de máxima velocidad y la actual. Si no hay velocidad actual, no hay
         servicio GPS. Si no hay límite de velocidad, puede ser que no esté registrado. Si existen ambos, se comparan,
@@ -99,6 +99,7 @@ class OLEDController:
             Logs.get_logger().info("Mostrando información sobre la ubicación actual en el display OLED", extra=__info__)
             top_text = "Conduciendo por:"
             next_top_text = "Autovia del mediterraneo, Almoradi (Alicante)"
+            Logs.get_logger().info(f"Location info display: {location_info}",extra=__info__)
 
         # Dibujar el texto superior
         top_text_bbox = draw.textbbox((0, 0), str(top_text), font=info_font)
