@@ -140,9 +140,12 @@ class NEO6Mv2:
             return False
 
     def _process_nmea_sentence(self, nmea_sentence: list) -> bool:
-        nmea_sentence[-1].strip("\r\n")
         nmea_message = nmea_sentence[0]
+        if len(nmea_message) == 0:
+            return False
+        nmea_sentence[-1].strip("\r\n")
         res = True
+        Logs.get_logger().info(f"NMEA Sentence: {nmea_sentence}", extra=__info__)
         if nmea_message == NmeaMessages.GPGGA:
             res = self._process_gpgga_sentence(nmea_sentence)
         elif nmea_message == NmeaMessages.GPGLL:

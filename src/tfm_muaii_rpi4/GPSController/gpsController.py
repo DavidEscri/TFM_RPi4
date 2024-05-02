@@ -59,7 +59,12 @@ class _GPSController(Service):
     def _run(self):
         try:
             while not super().need_stop():
-                self._gps_module.read_sentence()
+                res = self._gps_module.read_sentence()
+                if not res:
+                    Logs.get_logger().warning("Servicio GPS no disponible", extra=__info__)
+                    self._oled_mgr.draw_speed_limit(None, None, "")
+                    time.sleep(30)
+                    continue
                 if self.current_coordinates is None:
                     self.current_coordinates = self.get_coordinates()
                     continue
