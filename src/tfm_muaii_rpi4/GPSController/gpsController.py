@@ -61,7 +61,8 @@ class _GPSController(Service):
             while not super().need_stop():
                 res = self._gps_module.read_sentence()
                 if not res:
-                    Logs.get_logger().warning("Servicio GPS no disponible", extra=__info__)
+                    Logs.get_logger().warning("Servicio GPS no disponible, próximo intento en 30 segundos",
+                                              extra=__info__)
                     self._oled_mgr.draw_speed_limit(None, None, "")
                     time.sleep(30)
                     continue
