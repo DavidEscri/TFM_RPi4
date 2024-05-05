@@ -5,7 +5,7 @@
 	},
     "paths": {
         "font_path": {
-            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\fonts\\arial.ttf",
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\fonts\\Arial.ttf",
             "RPi4": "/usr/share/fonts/truetype/freefont/FreeSerif.ttf"
         },
         "images_test_path": {
