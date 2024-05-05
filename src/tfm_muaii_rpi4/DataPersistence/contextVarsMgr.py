@@ -33,7 +33,7 @@ class _ContextVarsMgr(Service):
         self._contextVarDict.setdefault(ContextVarsConst.PEOPLE, 0)
         self._contextVarDict.setdefault(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
         self._contextVarDict.setdefault(ContextVarsConst.SATELITES_GNSS, 0)
-        self._contextVarDict.setdefault(ContextVarsConst.PRECISION_GNSS, 0)
+        self._contextVarDict.setdefault(ContextVarsConst.PRECISION_GNSS, 0.0)
 
     def start(self):
         try:

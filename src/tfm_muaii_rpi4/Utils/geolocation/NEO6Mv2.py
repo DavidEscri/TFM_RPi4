@@ -173,8 +173,8 @@ class NEO6Mv2:
             return False
         latitude = nmea_sentence[GPGGASentence.POS_LATITUDE]
         latitude_indicator = nmea_sentence[GPGGASentence.POS_LATITUDE_INDICATOR]
-        longitude = nmea_sentence[GPGGASentence.POS_LATITUDE]
-        longitude_indicator = nmea_sentence[GPGGASentence.POS_LATITUDE_INDICATOR]
+        longitude = nmea_sentence[GPGGASentence.POS_LONGITUDE]
+        longitude_indicator = nmea_sentence[GPGGASentence.POS_LONGITUDE_INDICATOR]
         latitude, longitude = self._convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
         self._save_coordinates(latitude, longitude)
         Logs.get_logger().info(f"Coordenadas GPS (GPGGA): {latitude} {longitude}", extra=__info__)
@@ -193,8 +193,8 @@ class NEO6Mv2:
             return False
         latitude = nmea_sentence[GPGLLSentence.POS_LATITUDE]
         latitude_indicator = nmea_sentence[GPGLLSentence.POS_LATITUDE_INDICATOR]
-        longitude = nmea_sentence[GPGLLSentence.POS_LATITUDE]
-        longitude_indicator = nmea_sentence[GPGLLSentence.POS_LATITUDE_INDICATOR]
+        longitude = nmea_sentence[GPGLLSentence.POS_LONGITUDE]
+        longitude_indicator = nmea_sentence[GPGLLSentence.POS_LONGITUDE_INDICATOR]
         latitude, longitude = self._convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
         self._save_coordinates(latitude, longitude)
         Logs.get_logger().info(f"Coordenadas GPS (GPGLL): {latitude} {longitude}", extra=__info__)
@@ -208,8 +208,8 @@ class NEO6Mv2:
             return False
         latitude = nmea_sentence[GPRMCSentence.POS_LATITUDE]
         latitude_indicator = nmea_sentence[GPRMCSentence.POS_LATITUDE_INDICATOR]
-        longitude = nmea_sentence[GPRMCSentence.POS_LATITUDE]
-        longitude_indicator = nmea_sentence[GPRMCSentence.POS_LATITUDE_INDICATOR]
+        longitude = nmea_sentence[GPRMCSentence.POS_LONGITUDE]
+        longitude_indicator = nmea_sentence[GPRMCSentence.POS_LONGITUDE_INDICATOR]
         latitude, longitude = self._convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
         self._save_coordinates(latitude, longitude)
         Logs.get_logger().info(f"Coordenadas GPS (GPRMC): {latitude} {longitude}", extra=__info__)
@@ -219,6 +219,7 @@ class NEO6Mv2:
         satelites_totales = nmea_sentence[GPGSVSentence.POS_SATELLITES_IN_VIEW]
         if len(satelites_totales) == 0:
             return False
+        self.context_vars_mgr.set_context_var(ContextVarsConst.SATELITES_GNSS, int(satelites_totales))
         Logs.get_logger().info(f"Se están viendo un total de {satelites_totales} satelites", extra=__info__)
         return True
 
@@ -229,30 +230,31 @@ class NEO6Mv2:
         if not valid_operational_mode:
             return False
         precision_posicion = nmea_sentence[GPGSASentence.POS_POSITION_PRECISION]
-        precision_horizontal = nmea_sentence[GPGSASentence.POS_HORIZONTAL_PRECISION]
-        precision_vertical = nmea_sentence[GPGSASentence.POS_VERTICAL_PRECISION]
+        self.context_vars_mgr.set_context_var(ContextVarsConst.PRECISION_GNSS, float(precision_posicion))
+        _ = nmea_sentence[GPGSASentence.POS_HORIZONTAL_PRECISION]
+        _ = nmea_sentence[GPGSASentence.POS_VERTICAL_PRECISION]
         Logs.get_logger().info(f"Precision de las coordenadas: {precision_posicion} M", extra=__info__)
         return True
 
     @staticmethod
     def _is_valid_fix(fix_indicator: str) -> (bool, str):
-        if fix_indicator == 0:
+        if fix_indicator == "0":
             return False, ""
-        elif fix_indicator == 1:
+        elif fix_indicator == "1":
             return True, "Modo SPS"
-        elif fix_indicator == 2:
+        elif fix_indicator == "2":
             return True, "Modo GPS Diferencial"
-        elif fix_indicator == 3:
+        elif fix_indicator == "3":
             return True, "Modo PPS"
-        elif fix_indicator == 4:
+        elif fix_indicator == "4":
             return False, "Modo Real Time Kinematic"
-        elif fix_indicator == 5:
+        elif fix_indicator == "5":
             return False, "Modo Floating RTK"
-        elif fix_indicator == 6:
+        elif fix_indicator == "6":
             return False, "Modo de estimacion"
-        elif fix_indicator == 7:
+        elif fix_indicator == "7":
             return False, "Modo de entrada de datos manual"
-        elif fix_indicator == 8:
+        elif fix_indicator == "8":
             return False, "Modo simulacion"
         else:
             return False, ""
@@ -316,3 +318,9 @@ class NEO6Mv2:
 
     def get_coordinates(self) -> Coordinates:
         return self.context_vars_mgr.get_context_var(ContextVarsConst.COORDENADAS_GPS)
+
+    def get_satellites(self) -> int:
+        return self.context_vars_mgr.get_context_var(ContextVarsConst.SATELITES_GNSS)
+
+    def get_precision_gnss(self) -> float:
+        return self.context_vars_mgr.get_context_var(ContextVarsConst.PRECISION_GNSS)

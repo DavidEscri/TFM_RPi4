@@ -8,6 +8,7 @@ from luma.core.interface.serial import i2c
 from luma.oled.device import sh1107
 from PIL import Image, ImageDraw, ImageFont
 
+from tfm_muaii_rpi4.Environment.env import EnvSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 Logs = LogsSingleton()
@@ -24,6 +25,8 @@ class OLEDConfig:
 
 class OLEDController:
     def __init__(self, i2c_port=4, i2c_address=0x3C):
+        self._env = EnvSingleton()
+        self._env.get_path(self._env.font_path)
         # Configura la conexión I2C
         self._serial = i2c(port=i2c_port, address=i2c_address)
         # Inicializa el dispositivo OLED
@@ -98,7 +101,7 @@ class OLEDController:
         else:
             Logs.get_logger().info("Mostrando información sobre la ubicación actual en el display OLED", extra=__info__)
             top_text = "Conduciendo por:"
-            next_top_text = "Autovia del mediterraneo, Almoradi (Alicante)"
+            next_top_text = location_info  # "Autovia del mediterraneo, Almoradi (Alicante)"
             Logs.get_logger().info(f"Location info display: {location_info}",extra=__info__)
 
         # Dibujar el texto superior
