@@ -5,6 +5,7 @@ __version__ = "1.0"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
 import time
+import socket
 from threading import Thread, Event
 
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
@@ -82,3 +83,12 @@ class Service:
 
 class ServiceDB:
     pass
+
+
+def internet_access(host="8.8.8.8", port=53, timeout=1):
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except Exception:
+        return False

@@ -11,7 +11,7 @@ from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 from tfm_muaii_rpi4.Utils.geolocation.NEO6Mv2 import NEO6Mv2
 from tfm_muaii_rpi4.Utils.geolocation.geoUtils import Coordinates, GeoUtils
 from tfm_muaii_rpi4.Utils.display.displayOLED import OLEDController
-from tfm_muaii_rpi4.Utils.utils import Service
+from tfm_muaii_rpi4.Utils.utils import Service, internet_access
 
 Logs = LogsSingleton()
 
@@ -71,10 +71,18 @@ class _GPSController(Service):
                     continue
                 else:
                     self.last_coordinates = self.current_coordinates
+                if self.last_coordinates.get_coordinates() == (0, 0):
+                    continue
                 self.current_coordinates = self.get_coordinates()
+                if self.current_coordinates.get_coordinates() == (0,0):
+                    continue
                 current_speed = self._geo_utils.calculate_speed(self.last_coordinates, self.current_coordinates)
-                max_speed, location_info = self._geo_utils.get_max_speed_location(self.current_coordinates)
                 Logs.get_logger().info(f"Velocidad actual: {current_speed} km/h", extra=__info__)
+                if internet_access():
+                    max_speed, location_info = self._geo_utils.get_max_speed_location(self.current_coordinates)
+                else:
+                    Logs.get_logger().info("No hay conexión a internet para realizar la geolocalización")
+                    max_speed, location_info = self._geo_utils.get_offlnie_max_speed_location(self.current_coordinates)
                 self._oled_mgr.draw_speed_limit(max_speed, current_speed, location_info)
                 time.sleep(1)
         except Exception as e:
