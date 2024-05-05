@@ -4,6 +4,10 @@
 		"version": "0.1"
 	},
     "paths": {
+        "font_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\fonts\\arial.ttf",
+            "RPi4": "/usr/share/fonts/truetype/freefont/FreeSerif.ttf"
+        },
         "images_test_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\images\\images_test",
             "RPi4": "/home/pi/TFM_RPi4/resources/images/images_result"

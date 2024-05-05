@@ -20,6 +20,7 @@ class _Env:
     HOSTS = "hosts"
 
     # variables
+    font_path = "font_path"
     images_test_path = "images_test_path"
     images_result_path = "images_result_path"
     logs_path = "logs_path"
