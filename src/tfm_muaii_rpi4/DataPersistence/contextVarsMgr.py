@@ -13,9 +13,19 @@ from tfm_muaii_rpi4.Utils.utils import Service
 Logs = LogsSingleton()
 
 
+class DefaultVarsConst:
+    MAX_VEHICLE_CAPACITY: int = 4
+
+
 class ContextVarsConst:
-    PEOPLE = "people"
+    PERSONAS = "personas"
+    MAX_PERSONAS = "max_personas"
     COORDENADAS_GPS = "coordenadas_gps"
+    VELOCIDAD_ACTUAL = "velocidad_actual"
+    VELOCIDAD_MAXIMA = "velocidad_maxima"
+    UBICACION_INFO = "ubicacion_info"
+    MAL_ESTADO_CARRETERA = "mal_estado_carretera"
+    VEHICULO_PARADO = "vehiculo_parado"
     SATELITES_GNSS = "satelites_gnss"
     PRECISION_GNSS = "precision_gnss"
 
@@ -30,8 +40,14 @@ class _ContextVarsMgr(Service):
 
     def _initDefaultContextVars(self):
         self._contextVarDict: dict = {}
-        self._contextVarDict.setdefault(ContextVarsConst.PEOPLE, 0)
+        self._contextVarDict.setdefault(ContextVarsConst.PERSONAS, 0)
+        self._contextVarDict.setdefault(ContextVarsConst.MAX_PERSONAS, DefaultVarsConst.MAX_VEHICLE_CAPACITY)
         self._contextVarDict.setdefault(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
+        self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_ACTUAL, 0)
+        self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_MAXIMA, 0)
+        self._contextVarDict.setdefault(ContextVarsConst.UBICACION_INFO, "")
+        self._contextVarDict.setdefault(ContextVarsConst.MAL_ESTADO_CARRETERA, False)
+        self._contextVarDict.setdefault(ContextVarsConst.VEHICULO_PARADO, True)
         self._contextVarDict.setdefault(ContextVarsConst.SATELITES_GNSS, 0)
         self._contextVarDict.setdefault(ContextVarsConst.PRECISION_GNSS, 0.0)
 

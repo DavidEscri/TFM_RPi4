@@ -55,7 +55,7 @@ class _Env:
             else:
                 return self._conf[self.PATHS][path][self.DEFAULT]
         else:
-            logging.error(f"No existe el path {path}", extra=__info__)
+            logging.error(f"No existe el path: {path}", extra=__info__)
             return None
 
     def get_host(self, service: str) -> dict:

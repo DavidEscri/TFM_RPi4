@@ -63,7 +63,7 @@ class GeoUtils:
                                        f"{max_speed} km/h", extra=__info__)
         return max_speed, location_info
 
-    def get_offlnie_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
+    def get_offline_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
         #TODO: En el arranque se tendrá que cargar fichero con info de carreteras de la comunidad valenciana y obtener
         # de ahí la información
         return 0, "Sin acceso a internet"
