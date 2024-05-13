@@ -23,6 +23,7 @@ function ExitControl() {
 echo "INICIANDO SISTEMA"
 echo "Activando entorno virtual python -> "  $script_activate
 source $script_activate
+sleep 1
 $(python3.9 TFMApp.py)
 output=$?
 echo "SALIDA SISTEMA -> " $output
