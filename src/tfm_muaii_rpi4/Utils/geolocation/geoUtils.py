@@ -6,9 +6,12 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import time
 import datetime
+import os
+import json
 import geopy.distance
 from geopy.geocoders import Nominatim
 
+from tfm_muaii_rpi4.Environment.env import EnvSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 
@@ -30,6 +33,14 @@ class Coordinates:
 
 
 class GeoUtils:
+
+    def __init__(self):
+        self._env = EnvSingleton()
+        roads_path = self._env.get_path(self._env.roads_path)
+        municipios_com_val_json = os.path.join(roads_path, "municipios_cv.geojson")
+        with open(municipios_com_val_json, "r") as municipios_file:
+            municipios_dict = json.load(municipios_file)
+        self._municipios: dict = municipios_dict
 
     def get_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
         """
@@ -135,8 +146,7 @@ class GeoUtils:
         :param current_coordinates: Coordenadas actuales.
         :return: Booleano si la velocidad actual es superior a la máxima permitida
         """
-        location = self.get_location(current_coordinates)
-        max_speed = self.get_max_speed_location(location)
+        max_speed, _ = self.get_max_speed_location(current_coordinates)
         current_speed = self.calculate_speed(last_coordinates, current_coordinates)
         print(f"Velocidad actual: {current_speed} km/h")
         return current_speed > max_speed

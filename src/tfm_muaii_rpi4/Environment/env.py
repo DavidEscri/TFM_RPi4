@@ -23,6 +23,8 @@ class _Env:
     font_path = "font_path"
     images_test_path = "images_test_path"
     images_result_path = "images_result_path"
+    roads_path = "roads_path"
+    DB_path = "DB_path"
     logs_path = "logs_path"
     yolo_classes_path = "yolo_classes_path"
     yolo_models_path = "yolo_models_path"

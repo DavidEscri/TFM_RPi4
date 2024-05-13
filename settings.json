@@ -20,6 +20,14 @@
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\logs",
             "RPi4": "/home/pi/TFM_RPi4/resources/logs/"
         },
+        "roads_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\carreteras",
+            "RPi4": "/home/pi/TFM_RPi4/resources/carreteras/"
+        },
+        "DB_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\DB",
+            "RPi4": "/home/pi/TFM_RPi4/resources/DB/"
+        },
         "yolo_classes_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\classes",
             "RPi4": "/home/pi/TFM_RPi4/resources/yolo/classes"
