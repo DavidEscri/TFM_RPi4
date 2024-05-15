@@ -33,15 +33,6 @@ class Coordinates:
 
 
 class GeoUtils:
-
-    def __init__(self):
-        self._env = EnvSingleton()
-        roads_path = self._env.get_path(self._env.roads_path)
-        municipios_com_val_json = os.path.join(roads_path, "municipios_cv.geojson")
-        with open(municipios_com_val_json, "r") as municipios_file:
-            municipios_dict = json.load(municipios_file)
-        self._municipios: dict = municipios_dict
-
     def get_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
         """
         Obtención de la máxima velocidad en km/h de una localizacicón definida por la libreria de geopy
@@ -75,6 +66,7 @@ class GeoUtils:
         return max_speed, location_info
 
     def get_offline_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
+
         #TODO: En el arranque se tendrá que cargar fichero con info de carreteras de la comunidad valenciana y obtener
         # de ahí la información
         return 0, "Sin acceso a internet"
