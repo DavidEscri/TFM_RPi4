@@ -6,9 +6,7 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import logging
 import os
-import stat
 import tarfile
-import time
 from datetime import datetime, timedelta
 
 from tfm_muaii_rpi4.Environment import env
@@ -27,22 +25,29 @@ class _Logs:
     def __init__(self):
         # Se crea el logger
         self.__logger = logging.getLogger(_Logs.LOGGER_NAME)
-        # Se crea el handler y se le asigna una fecha de registro
-        date = datetime.now().strftime('%Y%m%d')
+        # Configuración del path y archivo de log
         setting = env.EnvSingleton()
         self.path_logs = setting.get_path(setting.logs_path)
         if not os.path.exists(self.path_logs):
             os.makedirs(self.path_logs)
-        file_name = 'tfm_{}.log'.format(date)
-        file_name = os.path.join(self.path_logs, file_name)
-        self.handler_file = logging.FileHandler(file_name)
-        # Se añade el handler al logger creado
-        self.__logger.addHandler(self.handler_file)
+        # Se crea un handler y se asigna al logger
+        self._setup_file_handler()
         # Se establece un nivel de logeo
         self.__logger.setLevel(self.DEBUG)
         # Se define un formato de escritura del log
         self.handler_file.setFormatter(logging.Formatter(_Logs.FORMATO))
+        # Limpieza logs antiguos
         self._clean_logs(self.path_logs)
+
+    def _setup_file_handler(self):
+        date = datetime.now().strftime('%Y%m%d')
+        file_name = 'tfm_{}.log'.format(date)
+        file_name = os.path.join(self.path_logs, file_name)
+        # Inicializar el FileHandler
+        self.handler_file = logging.FileHandler(file_name)
+        # Se añade el handler al logger creado
+        if not self.__logger.hasHandlers():
+            self.__logger.addHandler(self.handler_file)
 
     def get_logger(self):
         return self.__logger

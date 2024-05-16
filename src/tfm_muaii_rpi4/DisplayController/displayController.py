@@ -4,6 +4,7 @@ __module__ = "displayController"
 __version__ = "1.0"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
+import time
 from luma.core.interface.serial import i2c
 from luma.oled.device import sh1107
 
@@ -34,7 +35,10 @@ class _DisplayController(Service):
 
     def start(self):
         try:
-            self._start_display()
+            while not super().need_stop():
+                if not self._start_display():
+                    time.sleep(30)
+                break
             super().start()
         except Exception as e:
             super().critical_error(e, "start")
@@ -50,7 +54,7 @@ class _DisplayController(Service):
             self._display_utils = DisplayUtils(self._oled_device, text_font_path)
             return True
         except Exception as e:
-            Logs.get_logger().error(f"Error al iniciar Display OLED: {e}", extra=__info__)
+            Logs.get_logger().error(f"Error al iniciar display OLED: {e}", extra=__info__)
             return False
 
     def stop(self):
