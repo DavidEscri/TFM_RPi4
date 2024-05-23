@@ -28,6 +28,9 @@ class Coordinates:
     def get_coordinates(self) -> tuple:
         return self.data["coordinates"]
 
+    def check_coordinates(self) -> bool:
+        return self.get_coordinates() == (0, 0)
+
     def get_timestamp(self) -> datetime:
         return self.data["timestamp"]
 
@@ -53,7 +56,6 @@ class GeoUtils:
             max_speed = self._get_road_speed_limit(road_type)
             if "address" in location.raw:
                 road_adress = location.raw["address"]
-                Logs.get_logger().info(f"ROAD ADRESS: {road_adress}", extra=__info__)
                 road_name = road_adress["road"] if "road" in road_adress else ""
                 # barrio = road_adress["suburb"]
                 ciudad = road_adress["city"] if "city" in road_adress else road_adress["town"]
@@ -61,12 +63,11 @@ class GeoUtils:
                 # comunidad = road_adress["state"]
                 # pais = road_adress["country"]
                 location_info = f"{road_name}, {ciudad} ({provincia})"
-                Logs.get_logger().info(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: "
+                Logs.get_logger().debug(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: "
                                        f"{max_speed} km/h", extra=__info__)
         return max_speed, location_info
 
     def get_offline_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
-
         #TODO: En el arranque se tendrá que cargar fichero con info de carreteras de la comunidad valenciana y obtener
         # de ahí la información
         return 0, "Sin acceso a internet"

@@ -28,26 +28,32 @@ class _Logs:
         # Configuración del path y archivo de log
         setting = env.EnvSingleton()
         self.path_logs = setting.get_path(setting.logs_path)
+        # Inicialización de logs
+        self._init_logs()
+        # Limpieza logs antiguos
+        self._clean_logs(self.path_logs)
+
+    def _init_logs(self):
         if not os.path.exists(self.path_logs):
             os.makedirs(self.path_logs)
+        date = datetime.now().strftime('%Y%m%d')
+        file_name = 'tfm_{}.log'.format(date)
+        file_name = os.path.join(self.path_logs, file_name)
+        if not os.path.exists(file_name):
+            with open(file_name, "w") as file:
+                pass
         # Se crea un handler y se asigna al logger
-        self._setup_file_handler()
+        self._setup_file_handler(file_name)
+
+    def _setup_file_handler(self, file_path):
+        # Inicializar el FileHandler
+        self.handler_file = logging.FileHandler(file_path)
+        # Se añade el handler al logger creado
+        self.__logger.addHandler(self.handler_file)
         # Se establece un nivel de logeo
         self.__logger.setLevel(self.DEBUG)
         # Se define un formato de escritura del log
         self.handler_file.setFormatter(logging.Formatter(_Logs.FORMATO))
-        # Limpieza logs antiguos
-        self._clean_logs(self.path_logs)
-
-    def _setup_file_handler(self):
-        date = datetime.now().strftime('%Y%m%d')
-        file_name = 'tfm_{}.log'.format(date)
-        file_name = os.path.join(self.path_logs, file_name)
-        # Inicializar el FileHandler
-        self.handler_file = logging.FileHandler(file_name)
-        # Se añade el handler al logger creado
-        if not self.__logger.hasHandlers():
-            self.__logger.addHandler(self.handler_file)
 
     def get_logger(self):
         return self.__logger
@@ -67,9 +73,9 @@ class _Logs:
                     with tarfile.open(output_log_path, "w:gz") as tar:
                         tar.add(log_path)
                     os.remove(log_path)
-
         except Exception as e:
             self.__logger.error(f"Error en el empaquetado de logs: {e}", extra=__info__)
+
 
 class LogsSingleton:
     __instance = None

@@ -22,10 +22,8 @@ class _RoadsPersistence(Service, ServiceDB):
     DB_NAME_CASTELLON = "db_roads_castellon.db"
 
     _table_name: str = "ROADS"
-    _list_fields: list = ["id", "tipo_tramo", "calzada", "carriles", "sentido", "clase", "tipo_via", "nombre",
-                          "nombre_alt", "geometry"]
-    _list_fields_type: list = ["INTEGER", "VARCHAR(20)", "VARCHAR(20)", "INTEGER", "VARCHAR(20)", "VARCHAR(30)",
-                               "VARCHAR(30)", "VARCHAR(100)", "JSON"]
+    _list_fields: list = ["id", "carriles", "sentido", "clase", "tipo_via", "nombre", "geometry"]
+    _list_fields_type: list = ["INTEGER", "INTEGER", "VARCHAR(20)", "VARCHAR(30)", "VARCHAR(20)", "VARCHAR(50)", "JSON"]
     _primary_key: str = "id AUTOINCREMENT"
 
     POS_ID: int = 0
