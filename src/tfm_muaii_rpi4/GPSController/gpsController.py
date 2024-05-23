@@ -59,47 +59,71 @@ class _GPSController(Service):
     def _run(self):
         try:
             while not super().need_stop():
-                res = self._gps_module.read_sentence()
-                if not res:
-                    self.current_coordinates = None
-                    self._context_vars.set_context_var(ContextVarsConst.COORDENADAS_GPS, Coordinates(0,0))
-                    self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_ACTUAL, None)
-                    self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_MAXIMA, None)
-                    self._context_vars.set_context_var(ContextVarsConst.UBICACION_INFO, "")
-                    Logs.get_logger().warning("Servicio GPS no disponible, próximo intento en 30 segundos",
-                                              extra=__info__)
-                    time.sleep(30)
+                if not self._read_gps_sentence():
+                    super().sleep_period()
                     continue
-                if self.current_coordinates is None:
-                    self.current_coordinates = self.get_coordinates()
+                if self._set_initial_coordinates():
                     continue
-                else:
-                    self.last_coordinates = self.current_coordinates
-                if self.last_coordinates.get_coordinates() == (0, 0):
+                if self._process_current_coordinates():
                     continue
-                self.current_coordinates = self.get_coordinates()
-                if self.current_coordinates.get_coordinates() == (0,0):
-                    continue
-                current_speed = self._geo_utils.calculate_speed(self.last_coordinates, self.current_coordinates)
-                if current_speed == 0:
-                    self._context_vars.set_context_var(ContextVarsConst.VEHICULO_PARADO, True)
-                else:
-                    self._context_vars.set_context_var(ContextVarsConst.VEHICULO_PARADO, False)
-                    Logs.get_logger().info(f"Velocidad actual: {current_speed} km/h", extra=__info__)
-                self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_ACTUAL, current_speed)
-                if internet_access():
-                    max_speed, location_info = self._geo_utils.get_max_speed_location(self.current_coordinates)
-                else:
-                    Logs.get_logger().info("No hay conexión a internet para realizar la geolocalización")
-                    max_speed, location_info = self._geo_utils.get_offline_max_speed_location(self.current_coordinates)
-                self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_MAXIMA, max_speed)
-                self._context_vars.set_context_var(ContextVarsConst.UBICACION_INFO, location_info)
+                self._update_vehicle_status()
+                self._update_location_info()
                 super().sleep_period()
         except Exception as e:
             Logs.get_logger().error(f"Error hilo GPS: {e}", extra=__info__)
 
+    def _read_gps_sentence(self) -> bool:
+        if not self._gps_module.read_sentence():
+            self._set_default_context_vars()
+            Logs.get_logger().warning("Servicio GPS no disponible, próximo intento en 10 segundos",
+                                      extra=__info__)
+            self.sleep_period = 10
+            return False
+        self.sleep_period = 1
+        return True
+
+    def _set_default_context_vars(self) -> None:
+        self.current_coordinates = None
+        self._context_vars.set_context_var(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
+        self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_ACTUAL, None)
+        self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_MAXIMA, None)
+        self._context_vars.set_context_var(ContextVarsConst.UBICACION_INFO, "")
+
+    def _set_initial_coordinates(self) -> bool:
+        if self.current_coordinates is None:
+            self.current_coordinates = self.get_coordinates()
+            return True
+        self.last_coordinates = self.current_coordinates
+        return False
+
+    def _process_current_coordinates(self) -> bool:
+        if self.last_coordinates.check_coordinates():
+            return True
+        self.current_coordinates = self.get_coordinates()
+        if self.current_coordinates.check_coordinates():
+            return True
+        return False
+
     def get_coordinates(self) -> Coordinates:
         return self._gps_module.get_coordinates()
+
+    def _update_vehicle_status(self) -> None:
+        current_speed = self._geo_utils.calculate_speed(self.last_coordinates, self.current_coordinates)
+        Logs.get_logger().info(f"Velocidad actual: {current_speed} km/h", extra=__info__)
+        self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_ACTUAL, current_speed)
+        self._context_vars.set_context_var(ContextVarsConst.VEHICULO_PARADO, current_speed == 0)
+
+    def _update_location_info(self) -> None:
+        max_speed, location_info = self._get_speed_and_location_info()
+        self._context_vars.set_context_var(ContextVarsConst.VELOCIDAD_MAXIMA, max_speed)
+        self._context_vars.set_context_var(ContextVarsConst.UBICACION_INFO, location_info)
+
+    def _get_speed_and_location_info(self) -> (int, str):
+        if internet_access():
+            return self._geo_utils.get_max_speed_location(self.current_coordinates)
+        else:
+            Logs.get_logger().warning("No hay conexión a internet para realizar la geolocalización", extra=__info__)
+            return self._geo_utils.get_offline_max_speed_location(self.current_coordinates)
 
 
 class GPSControllerSingleton:
@@ -109,7 +133,3 @@ class GPSControllerSingleton:
         if GPSControllerSingleton.__instance is None:
             GPSControllerSingleton.__instance = _GPSController()
         return GPSControllerSingleton.__instance
-
-if __name__ == "__main__":
-    gps_module = GPSControllerSingleton()
-    gps_module.start()
