@@ -28,8 +28,8 @@ class Coordinates:
     def get_coordinates(self) -> tuple:
         return self.data["coordinates"]
 
-    def check_coordinates(self) -> bool:
-        return self.get_coordinates() == (0, 0)
+    def valid_coordinates(self) -> bool:
+        return self.get_coordinates() != (0, 0)
 
     def get_timestamp(self) -> datetime:
         return self.data["timestamp"]
@@ -42,7 +42,7 @@ class GeoUtils:
         :param coordenadas: Coordenadas de la localización
         :return: Velocidad en km/h
         """
-        max_speed: int = None
+        max_speed: int = 0
         location_info: str = ""
         if coordenadas.get_coordinates() == (0,0):
             return max_speed, location_info

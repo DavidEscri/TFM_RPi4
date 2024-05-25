@@ -15,6 +15,9 @@ Logs = LogsSingleton()
 
 class DefaultVarsConst:
     MAX_VEHICLE_CAPACITY: int = 4
+    CURRENT_SPEED: int = None
+    MAX_SPEED: int = 0
+    LOCATION_INFO: str = ""
 
 
 class ContextVarsConst:
@@ -43,9 +46,9 @@ class _ContextVarsMgr(Service):
         self._contextVarDict.setdefault(ContextVarsConst.PERSONAS, 0)
         self._contextVarDict.setdefault(ContextVarsConst.MAX_PERSONAS, DefaultVarsConst.MAX_VEHICLE_CAPACITY)
         self._contextVarDict.setdefault(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
-        self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_ACTUAL, 0)
-        self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_MAXIMA, 0)
-        self._contextVarDict.setdefault(ContextVarsConst.UBICACION_INFO, "")
+        self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_ACTUAL, DefaultVarsConst.CURRENT_SPEED)
+        self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_MAXIMA, DefaultVarsConst.MAX_SPEED)
+        self._contextVarDict.setdefault(ContextVarsConst.UBICACION_INFO, DefaultVarsConst.LOCATION_INFO)
         self._contextVarDict.setdefault(ContextVarsConst.MAL_ESTADO_CARRETERA, False)
         self._contextVarDict.setdefault(ContextVarsConst.VEHICULO_PARADO, True)
         self._contextVarDict.setdefault(ContextVarsConst.SATELITES_GNSS, 0)

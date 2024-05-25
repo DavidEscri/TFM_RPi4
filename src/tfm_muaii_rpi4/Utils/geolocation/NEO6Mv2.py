@@ -137,13 +137,7 @@ class NEO6Mv2:
             return self._process_nmea_sentence(sentence.split(","))
         except serial.SerialException as e:
             Logs.get_logger().error(f"GPS Serial Exception: {e}", extra=__info__)
-            return False
-        except UnicodeDecodeError:
-            Logs.get_logger().error("Sentencia NMEA del módulo GPS incompleta.", extra=__info__)
-            return False
-        except Exception as e:
-            Logs.get_logger().error(f"Error al leer sentencia NMEA del GPS: {e}", extra=__info__)
-            return False
+            return None
 
     def _process_nmea_sentence(self, nmea_sentence: list) -> bool:
         nmea_message = nmea_sentence[0]
@@ -167,8 +161,8 @@ class NEO6Mv2:
     def _process_gpgga_sentence(self, nmea_sentence: list) -> bool:
         fix_indicator = nmea_sentence[GPGGASentence.POS_FIX_INDICATOR]
         valid_fix, fix_type = self._is_valid_fix(fix_indicator)
-        if len(fix_type) > 0:
-            Logs.get_logger().debug(f"Modo GPS (GPGGA): {fix_type}", extra=__info__)
+        # if len(fix_type) > 0:
+        #     Logs.get_logger().debug(f"Modo GPS (GPGGA): {fix_type}", extra=__info__)
         if not valid_fix:
             return False
         latitude = nmea_sentence[GPGGASentence.POS_LATITUDE]
@@ -179,7 +173,7 @@ class NEO6Mv2:
         self._save_coordinates(latitude, longitude)
         Logs.get_logger().debug(f"Coordenadas GPS (GPGGA): {latitude} {longitude}", extra=__info__)
         satelites_used = nmea_sentence[GPGGASentence.POS_SATELLITES_USED]
-        Logs.get_logger().debug(f"Se están utilizando un total de {satelites_used} satelites", extra=__info__)
+        # Logs.get_logger().debug(f"Se están utilizando un total de {satelites_used} satelites", extra=__info__)
         return True
 
     def _process_gpgll_sentence(self, nmea_sentence: list[str]):
@@ -188,7 +182,7 @@ class NEO6Mv2:
             return False
         mode = nmea_sentence[GPGLLSentence.POS_MODE][:-3]
         valid_mode, mode_type = self._is_valid_mode(mode)
-        Logs.get_logger().debug(f"Modo GPGLL: {mode_type}", extra=__info__)
+        # Logs.get_logger().debug(f"Modo GPGLL: {mode_type}", extra=__info__)
         if not valid_mode:
             return False
         latitude = nmea_sentence[GPGLLSentence.POS_LATITUDE]
@@ -203,7 +197,7 @@ class NEO6Mv2:
     def _process_gprmc_sentence(self, nmea_sentence: list):
         mode = nmea_sentence[GPRMCSentence.POS_MODE][:-3]
         valid_mode, mode_type = self._is_valid_mode(mode)
-        Logs.get_logger().debug(f"Modo GPRMC: {mode_type}", extra=__info__)
+        # Logs.get_logger().debug(f"Modo GPRMC: {mode_type}", extra=__info__)
         if not valid_mode:
             return False
         latitude = nmea_sentence[GPRMCSentence.POS_LATITUDE]
@@ -226,7 +220,7 @@ class NEO6Mv2:
     def _process_gpgsa_sentence(self, nmea_sentence: list):
         operational_mode = nmea_sentence[GPGSASentence.POS_MODE_2]
         valid_operational_mode, operational_type = self._is_valid_operational_mode(operational_mode)
-        Logs.get_logger().debug(f"Modo de operacion (GPGSA): {operational_mode}", extra=__info__)
+        # Logs.get_logger().debug(f"Modo de operacion (GPGSA): {operational_mode}", extra=__info__)
         if not valid_operational_mode:
             return False
         precision_posicion = nmea_sentence[GPGSASentence.POS_POSITION_PRECISION]

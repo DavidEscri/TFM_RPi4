@@ -7,6 +7,7 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 from luma.oled.device import sh1107
 from PIL import Image, ImageDraw, ImageFont
 
+from tfm_muaii_rpi4.DataPersistence.contextVarsMgr import DefaultVarsConst
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 Logs = LogsSingleton()
@@ -153,7 +154,7 @@ class DisplayUtils:
             self._display_image(image)
             return
 
-        if speed_limit is None:
+        if speed_limit == DefaultVarsConst.MAX_SPEED:
             image = self._speed_limit_error(draw, image, current_speed)
             Logs.get_logger().warning("Mostrando imagen de velocidad actual en display OLED", extra=__info__)
             self._display_image(image)
