@@ -32,7 +32,12 @@ class _GPSController(Service):
 
     def start(self):
         try:
-            self._start_gps()
+            while not super().need_stop():
+                if not self._start_gps():
+                    Logs.get_logger().warning("No se pudo incializar el modulo GPS, próxima intento en 30 segundos",
+                                              extra=__info__)
+                    time.sleep(30)
+                break
             super().start()
         except Exception as e:
             super().critical_error(e, "start")
@@ -46,8 +51,11 @@ class _GPSController(Service):
             return False
 
     def stop(self):
-        self._stop_gps()
-        super().stop()
+        try:
+            self._stop_gps()
+            super().stop()
+        except Exception as e:
+            super().critical_error(e, "stop")
 
     def _stop_gps(self) -> bool:
         try:

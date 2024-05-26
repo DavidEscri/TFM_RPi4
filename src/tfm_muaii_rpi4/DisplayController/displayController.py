@@ -37,6 +37,8 @@ class _DisplayController(Service):
         try:
             while not super().need_stop():
                 if not self._start_display():
+                    Logs.get_logger().warning("No se pudo incializar el display OLED, próxima intento en 30 segundos",
+                                              extra=__info__)
                     time.sleep(30)
                 break
             super().start()
