@@ -9,3 +9,4 @@ yolov5~=7.0.13
 python-dotenv~=1.0.0
 Pillow~=10.1.0
 luma.oled~=3.13.0
+Rtree~=1.2.0

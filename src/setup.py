@@ -16,7 +16,8 @@ setup(
         'torch~=2.1.2',
         'smbus2~=0.4.3',
         'Pillow~=10.1.0',
-        'luma.oled~=3.13.0'
+        'luma.oled~=3.13.0',
+        'Rtree~=1.2.0'
     ],
     url='https://github.com/DavidEscri/TFM_RPi4',
     license='',

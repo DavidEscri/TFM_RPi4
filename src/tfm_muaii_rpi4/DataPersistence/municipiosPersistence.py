@@ -5,7 +5,8 @@ __version__ = "1.0"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
 import os
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Point, shape
+import json
 
 from tfm_muaii_rpi4.Utils.geolocation.geoUtils import Coordinates
 from tfm_muaii_rpi4.Environment.env import EnvSingleton
@@ -35,6 +36,9 @@ class _MunicipiosPersistence(Service, ServiceDB):
             env = EnvSingleton()
             db_path = env.get_path(env.DB_path)
             ServiceDB.__init__(self, self.DB_NAME, db_path)
+            self._municipios: list = []
+            self.__current_provincia: str = ""
+            self.__current_municipio: str = ""
         except Exception as e:
             super().critical_error(e, "init")
 
@@ -43,6 +47,7 @@ class _MunicipiosPersistence(Service, ServiceDB):
             super().start()
             if not os.path.isfile(self.path_db):
                 raise Exception(f"No existe la base de datos {self.path_db}")
+            self.__load_municipios()
         except Exception as e:
             super().critical_error(e, "start")
 
@@ -52,13 +57,36 @@ class _MunicipiosPersistence(Service, ServiceDB):
         except Exception as e:
             super().critical_error(e, "stop")
 
-    def get_record_by_coordinates(self, coordinates: Coordinates):
+    def __load_municipios(self):
         fields: list = list()
         params: list = list()
-        for i in range(0, len(self._list_fields)):
-            fields.append(self._list_fields[i])
-        params.append(coordinates)
-        punto = Point(coordinates.get_coordinates())
+        fields.append(self._list_fields[self.POS_ID])
+        fields.append(self._list_fields[self.POS_GEOMETRY])
+        sql = f"SELECT {', '.join(fields)} FROM {self._table_name}"
+        res, record_list = self._db.query_sql(sql, tuple(params), fields)
+        self._municipios = [(row[fields[0]], shape(json.loads(row[fields[1]]))) for row in record_list]
+
+    def get_record_municipio(self, coordinates: Coordinates):
+        fields: list = list()
+        fields.append(self._list_fields[self.POS_NAME])
+        fields.append(self._list_fields[self.POS_PROVINCIA])
+        fields.append(self._list_fields[self.POS_MUNICIPIO])
+        params: list = list()
+        point = Point(coordinates.get_coordinates()[::-1])
+        for municipio_id, geom in self._municipios:
+            if geom.contains(point):
+                params.append(municipio_id)
+                sql = f"SELECT {', '.join(fields)} FROM {self._table_name} WHERE id = ?"
+                res, record_list = self._db.query_sql(sql, tuple(params), fields)
+                self.__current_municipio = record_list[0]
+                self.__current_provincia = record_list[0]["provincia"]
+                return self.__current_municipio
+
+    def get_current_municipio(self):
+        return self.__current_municipio
+
+    def get_current_provincia(self):
+        return self.__current_provincia
 
 
 class MunicipiosPersistenceSingleton:
