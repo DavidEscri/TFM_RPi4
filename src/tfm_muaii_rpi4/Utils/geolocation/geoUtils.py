@@ -11,6 +11,7 @@ import json
 import geopy.distance
 from geopy.geocoders import Nominatim
 
+from tfm_muaii_rpi4.DataPersistence.roadsPersistence import RoadsDB
 from tfm_muaii_rpi4.Environment.env import EnvSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
@@ -36,7 +37,7 @@ class Coordinates:
 
 
 class GeoUtils:
-    def get_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
+    def get_online_max_speed_and_location(self, coordenadas: Coordinates) -> (int, str):
         """
         Obtención de la máxima velocidad en km/h de una localizacicón definida por la libreria de geopy
         :param coordenadas: Coordenadas de la localización
@@ -44,36 +45,74 @@ class GeoUtils:
         """
         max_speed: int = 0
         location_info: str = ""
-        if coordenadas.get_coordinates() == (0,0):
+        if not coordenadas.valid_coordinates():
             return max_speed, location_info
         geolocator = Nominatim(user_agent="my_geocoder")
         location = geolocator.reverse(coordenadas.get_coordinates(), language='es')
         if location:
-            road_type = self._get_road_type(location)
-            # place_id = location.raw["place_id"]
-            # osm_id = location.raw["osm_id"]
-            # road_data = osm.geocode_to_gdf(str(place_id))
-            max_speed = self._get_road_speed_limit(road_type)
+            road_type = self.__get_online_road_type(location)
+            max_speed = self.__convert_online_road_speed_limit(road_type)
             if "address" in location.raw:
                 road_adress = location.raw["address"]
                 road_name = road_adress["road"] if "road" in road_adress else ""
-                # barrio = road_adress["suburb"]
                 ciudad = road_adress["city"] if "city" in road_adress else road_adress["town"]
                 provincia = road_adress["state_district"] if "state_district" in road_adress else road_adress["province"]
-                # comunidad = road_adress["state"]
-                # pais = road_adress["country"]
                 location_info = f"{road_name}, {ciudad} ({provincia})"
                 Logs.get_logger().debug(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: "
                                        f"{max_speed} km/h", extra=__info__)
         return max_speed, location_info
 
-    def get_offline_max_speed_location(self, coordenadas: Coordinates) -> (int, str):
+    def get_offline_max_speed_and_location(self, road_info: dict) -> (int, str):
         #TODO: En el arranque se tendrá que cargar fichero con info de carreteras de la comunidad valenciana y obtener
         # de ahí la información
-        return 0, "Sin acceso a internet"
+        road_type = road_info["tipo_via"]
+        max_speed = self.__convert_offline_road_speed_limit(road_info["clase"], road_type)
+        road_name = road_info["nombre"]
+        municipio = road_info["municipio"]
+        provincia = road_info["provincia"]
+        location_info = f"{road_type} {road_name}, {municipio} ({provincia})"
+        Logs.get_logger().debug(f"La velocidad máxima para {road_type} {road_name} ubicado en {municipio} "
+                                f"({provincia}) es: {max_speed} km/h", extra=__info__)
+        return max_speed, location_info
 
     @staticmethod
-    def _get_road_type(location: geopy.location.Location) -> str:
+    def __convert_offline_road_speed_limit(road_class: str, road_type: str) -> int:
+        if road_class == "Carretera convencional":
+            carretera_conv = {
+                {"Carretera", "CTRA", "Red TenT Global", "CARRE"}: 90,
+                {"CALLE", "Vial", "AVDA", "C", "C/", "PG", "PL", "URB", "PLAZA", "Desconocido", "AVGDA",
+                 "VIA", "GRUP", "POLIG", "PDA", "LUGAR", "TRSSI", "RONDA", "PLCET", "PLAÇA", "PASEO",
+                 "PTGE"}: 50,
+                {"BARRO", "CMNO", "camino", "PRAJE", "ALDEA", "CÑADA"}: 30,
+                {"Vía verde", "SEND", "Vial bici", "SENDA", "VREDA"}: 20
+            }
+            for roads, velocidad in carretera_conv.items():
+                if road_type in roads:
+                    return velocidad
+            return 0
+
+        if road_class == "Carretera multicarril":
+            carretera_multi = {
+                {"Carretera", "CTRA", "Red TenT Global"}: 100,
+                {"AVDA", "C/", "AV", "PONT", "C", "PG", "CALLE"}: 50
+            }
+            for roads, velocidad in carretera_multi.items():
+                if road_type in roads:
+                    return velocidad
+            return 0
+
+        speed_limits = {
+            "Autopista de peaje": 120,
+            "Autopista libre / autovía": 120,
+            "Camino": 30,
+            "Senda": 20,
+            "Carril bici": 20,
+            "Urbano": 50
+        }
+        return speed_limits.get(road_class, 0)
+
+    @staticmethod
+    def __get_online_road_type(location: geopy.location.Location) -> str:
         """
         Obtención del tipo de carretera
         :param location: Localizacíon obtenida con la libreria de geopy
@@ -85,7 +124,7 @@ class GeoUtils:
         return road_type
 
     @staticmethod
-    def _get_road_speed_limit(road_type: str) -> int:
+    def __convert_online_road_speed_limit(road_type: str) -> int:
         """
         Obtención de la velocidad máxima a partir del tipo de carretera
         :param road_type: Tipo de carretera definido por Nominatim.
@@ -120,10 +159,10 @@ class GeoUtils:
         if time_difference == 0:
             return 0
         speed = distance / time_difference
-        return self._convert_ms_to_kmh(speed)
+        return self.__convert_ms_to_kmh(speed)
 
     @staticmethod
-    def _convert_ms_to_kmh(speed: float) -> int:
+    def __convert_ms_to_kmh(speed: float) -> int:
         """
         Conversión de velocidad de m/s a km/h
         :param speed: Velocidad en metros por segundo
@@ -131,18 +170,27 @@ class GeoUtils:
         """
         return round(speed * 3.6)
 
-    def is_speed_limit_exceeded(self, last_coordinates: Coordinates, current_coordinates: Coordinates) -> bool:
-        """
-        Se calcula la velocidad a la que se está circulando, y la compara con la velocidad máxima permitida para la
-        localización actual.
-        :param last_coordinates: Últimas coordenadas obtenidas.
-        :param current_coordinates: Coordenadas actuales.
-        :return: Booleano si la velocidad actual es superior a la máxima permitida
-        """
-        max_speed, _ = self.get_max_speed_location(current_coordinates)
-        current_speed = self.calculate_speed(last_coordinates, current_coordinates)
-        print(f"Velocidad actual: {current_speed} km/h")
-        return current_speed > max_speed
+    @staticmethod
+    def convert_provincia_to_road_db(provincia: str):
+        pronvicia_db = {
+            "Alicante": RoadsDB.DB_NAME_ALICANTE,
+            "Valencia": RoadsDB.DB_NAME_VALENCIA,
+            "Castellón": RoadsDB.DB_NAME_CASTELLON
+        }
+        return pronvicia_db.get(provincia, None)
+
+    # def is_speed_limit_exceeded(self, last_coordinates: Coordinates, current_coordinates: Coordinates) -> bool:
+    #     """
+    #     Se calcula la velocidad a la que se está circulando, y la compara con la velocidad máxima permitida para la
+    #     localización actual.
+    #     :param last_coordinates: Últimas coordenadas obtenidas.
+    #     :param current_coordinates: Coordenadas actuales.
+    #     :return: Booleano si la velocidad actual es superior a la máxima permitida
+    #     """
+    #     max_speed, _ = self.get_online_max_speed_and_location(current_coordinates)
+    #     current_speed = self.calculate_speed(last_coordinates, current_coordinates)
+    #     print(f"Velocidad actual: {current_speed} km/h")
+    #     return current_speed > max_speed
 
 
 if __name__ == "__main__":

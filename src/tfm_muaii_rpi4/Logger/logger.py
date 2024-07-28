@@ -24,41 +24,41 @@ class _Logs:
 
     def __init__(self):
         # Se crea el logger
-        self.__logger = logging.getLogger(_Logs.LOGGER_NAME)
+        self.__logger = logging.getLogger(self.LOGGER_NAME)
         # Configuración del path y archivo de log
         setting = env.EnvSingleton()
-        self.path_logs = setting.get_path(setting.logs_path)
+        self.__path_logs = setting.get_path(setting.logs_path)
         # Inicialización de logs
-        self._init_logs()
+        self.__init_logs()
         # Limpieza logs antiguos
-        self._clean_logs(self.path_logs)
+        self.__clean_logs(self.__path_logs)
 
-    def _init_logs(self):
-        if not os.path.exists(self.path_logs):
-            os.makedirs(self.path_logs)
+    def __init_logs(self):
+        if not os.path.exists(self.__path_logs):
+            os.makedirs(self.__path_logs)
         date = datetime.now().strftime('%Y%m%d')
         file_name = 'tfm_{}.log'.format(date)
-        file_name = os.path.join(self.path_logs, file_name)
+        file_name = os.path.join(self.__path_logs, file_name)
         if not os.path.exists(file_name):
             with open(file_name, "w") as file:
                 pass
         # Se crea un handler y se asigna al logger
-        self._setup_file_handler(file_name)
+        self.__setup_file_handler(file_name)
 
-    def _setup_file_handler(self, file_path):
+    def __setup_file_handler(self, file_path):
         # Inicializar el FileHandler
-        self.handler_file = logging.FileHandler(file_path)
+        self.__handler_file = logging.FileHandler(file_path)
         # Se añade el handler al logger creado
-        self.__logger.addHandler(self.handler_file)
+        self.__logger.addHandler(self.__handler_file)
         # Se establece un nivel de logeo
         self.__logger.setLevel(self.DEBUG)
         # Se define un formato de escritura del log
-        self.handler_file.setFormatter(logging.Formatter(_Logs.FORMATO))
+        self.__handler_file.setFormatter(logging.Formatter(self.FORMATO))
 
     def get_logger(self):
         return self.__logger
 
-    def _clean_logs(self, path_dir: str):
+    def __clean_logs(self, path_dir: str):
         try:
             yesterday = datetime.now() - timedelta(days=1)
             for log_file in os.listdir(path_dir):

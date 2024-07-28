@@ -47,16 +47,16 @@ class RegistersADXL345:
 class ADXL345:
     def __init__(self, bus: smbus2.SMBus):
         # DATASHEET: https://www.sparkfun.com/datasheets/Sensors/Accelerometer/ADXL345.pdf
-        self.bus = bus
+        self.__bus = bus
 
     def set_configuration(self):
         """
         Set ADXL345 configuration.
         """
         try:
-            self._set_bandwidth_rate(RegistersADXL345.BANDWIDTH_RATE_50HZ)
-            self._set_data_range()
-            self._enable_measurement()
+            self.__set_bandwidth_rate(RegistersADXL345.BANDWIDTH_RATE_50HZ)
+            self.__set_data_range()
+            self.__enable_measurement()
             time.sleep(1)
             Logs.get_logger().info(f"Configuracion del acelerómetro seteada correctamente", extra=__info__)
             return True
@@ -64,7 +64,7 @@ class ADXL345:
             Logs.get_logger().error(f"Error al setear la configuracion del acelerómetro: %s", e, extra=__info__)
             return False
 
-    def _set_bandwidth_rate(self, rate: int):
+    def __set_bandwidth_rate(self, rate: int):
         """
         ADXL345 address, 0x53(83)
         Select bandwidth rate register, 0x2C(44)
@@ -72,13 +72,13 @@ class ADXL345:
         Normal operation, output data rate = 100 Hz
         """
         try:
-            self.bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.BANDWIDTH_RATE_REG, rate)
+            self.__bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.BANDWIDTH_RATE_REG, rate)
             Logs.get_logger().info(f"Frecuencia de salida de datos configurada a {rate} Hz (1/3)", extra=__info__)
         except Exception as e:
             Logs.get_logger().error(f"No se pudo configurar la frecuencia de salida de datos a {rate} Hz (1/3): %s", e,
                                     extra=__info__)
 
-    def _set_data_range(self):
+    def __set_data_range(self):
         """
         ADXL345 address, 0x53(83)
         Select data format register, 0x31(49)
@@ -86,14 +86,14 @@ class ADXL345:
         Self test disabled, 4-wire SPI interface, Full resolution, right justified mode, Range = +/-2g
         """
         try:
-            self.bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATA_FORMAT, 0x08)
+            self.__bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATA_FORMAT, 0x08)
             time.sleep(0.5)
             Logs.get_logger().info(f"Rango +/- 2G configurado en el acelerómetro (2/3)", extra=__info__)
         except Exception as e:
             Logs.get_logger().error(f"No se pudo configurar el rango del acelerómetro a +/- 2G (2/3): %s", e,
                                     extra=__info__)
 
-    def _enable_measurement(self, enable: bool = True):
+    def __enable_measurement(self, enable: bool = True):
         """
         ADXL345 address, 0x53(83)
         Select power control register, 0x2D(45)
@@ -107,50 +107,50 @@ class ADXL345:
         """
         try:
             if enable:
-                self.bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.POWER_CTL,
+                self.__bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.POWER_CTL,
                                          RegistersADXL345.ENABLE_MEASURE)
                 Logs.get_logger().info(f"Medición habilitada en el acelerómetro (3/3)", extra=__info__)
             else:
-                self.bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.POWER_CTL,
+                self.__bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.POWER_CTL,
                                          RegistersADXL345.DISABLE_MEASURE)
                 Logs.get_logger().info(f"Medición deshabilitada en el acelerómetro", extra=__info__)
         except Exception as e:
             Logs.get_logger().error(f"No se pudo habilitar la medición en el acelerómetro (3/3): %s", e,
                                     extra=__info__)
 
-    def get_axis_x(self) -> int:
+    def __get_axis_x(self) -> int:
         """
         # ADXL345 address, 0x53(83)
         # Read data back from 0x32(50), 2 bytes: X-Axis LSB, X-Axis MSB
         """
-        data0 = self.bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAX0)
-        data1 = self.bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAX1)
+        data0 = self.__bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAX0)
+        data1 = self.__bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAX1)
         # Convert the data to 10-bits
         xAccl = ((data1 & 0x03) * 256) + data0
         if xAccl > 511:
             xAccl -= 1024
         return xAccl
 
-    def get_axis_y(self) -> int:
+    def __get_axis_y(self) -> int:
         """
         # ADXL345 address, 0x53(83)
         # Read data back from 0x34(52), 2 bytes: Y-Axis LSB, Y-Axis MSB
         """
-        data0 = self.bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAY0)
-        data1 = self.bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAY1)
+        data0 = self.__bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAY0)
+        data1 = self.__bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAY1)
         # Convert the data to 10-bits
         yAccl = ((data1 & 0x03) * 256) + data0
         if yAccl > 511:
             yAccl -= 1024
         return yAccl
 
-    def get_axis_z(self) -> int:
+    def __get_axis_z(self) -> int:
         """
         # ADXL345 address, 0x53(83)
         # Read data back from 0x36(54), 2 bytes: Z-Axis LSB, Z-Axis MSB
         """
-        data0 = self.bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAZ0)
-        data1 = self.bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAZ1)
+        data0 = self.__bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAZ0)
+        data1 = self.__bus.read_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATAZ1)
 
         # Convert the data to 10-bits
         zAccl = ((data1 & 0x03) * 256) + data0
@@ -159,7 +159,7 @@ class ADXL345:
         return zAccl
 
     @staticmethod
-    def convert_10bits_to_ms2(accel: int) -> int:
+    def __convert_10bits_to_ms2(accel: int) -> int:
         """
         Convierte el valor de aceleración recibido a m/s²
         :param accel: Aceleración expresada en un número con un valor máximo de 10 bits.
@@ -171,6 +171,6 @@ class ADXL345:
         return round(accel_ms2, 4)
 
     def get_all_axis(self) -> dict:
-        return {"eje_x": self.convert_10bits_to_ms2(self.get_axis_x()),
-                "eje_y": self.convert_10bits_to_ms2(self.get_axis_y()),
-                "eje_z": self.convert_10bits_to_ms2(self.get_axis_z())}
+        return {"eje_x": self.__convert_10bits_to_ms2(self.__get_axis_x()),
+                "eje_y": self.__convert_10bits_to_ms2(self.__get_axis_y()),
+                "eje_z": self.__convert_10bits_to_ms2(self.__get_axis_z())}

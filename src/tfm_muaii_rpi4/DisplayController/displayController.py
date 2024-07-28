@@ -24,12 +24,12 @@ class _DisplayController(Service):
 
     def __init__(self, i2c_port=4, i2c_address=0x3C):
         super().__init__(__info__, is_thread=True)
-        self._i2c_port = i2c_port
-        self._i2c_address = i2c_address
+        self.__i2c_port = i2c_port
+        self.__i2c_address = i2c_address
         self._env = EnvSingleton()
         self._context_vars = ContextVarsMgrSingleton()
-        self._serial_device: i2c = None
-        self._oled_device: sh1107 = None
+        self.__serial_device: i2c = None
+        self.__oled_device: sh1107 = None
         self._display_utils: DisplayUtils = None
         self.sleep_period = 1
 
@@ -48,12 +48,12 @@ class _DisplayController(Service):
     def _start_display(self) -> bool:
         try:
             # Configura la conexión I2C
-            self._serial_device = i2c(port=self._i2c_port, address=self._i2c_address)
+            self.__serial_device = i2c(port=self.__i2c_port, address=self.__i2c_address)
             # Inicializa el dispositivo OLED
-            self._oled_device = sh1107(self._serial_device, rotate=0,
+            self.__oled_device = sh1107(self.__serial_device, rotate=0,
                                        width=DisplayOLEDConfig.WIDTH, height=DisplayOLEDConfig.HEIGHT)
             text_font_path = self._env.get_path(self._env.font_path)
-            self._display_utils = DisplayUtils(self._oled_device, text_font_path)
+            self._display_utils = DisplayUtils(self.__oled_device, text_font_path)
             return True
         except Exception as e:
             Logs.get_logger().error(f"Error al iniciar display OLED: {e}", extra=__info__)
@@ -69,7 +69,7 @@ class _DisplayController(Service):
     def _stop_display(self) -> bool:
         try:
             # Se dibuja una imagen vacia y se terminan los recursos asociados al dispositivo OLED (incluido I2C)
-            self._oled_device.cleanup()
+            self.__oled_device.cleanup()
             return True
         except Exception as e:
             Logs.get_logger().error(f"Error al terminar Display OLED: {e}", extra=__info__)
