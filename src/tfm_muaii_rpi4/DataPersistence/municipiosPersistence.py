@@ -78,9 +78,9 @@ class _MunicipiosPersistence(Service, ServiceDB):
                 params.append(municipio_id)
                 sql = f"SELECT {', '.join(fields)} FROM {self._table_name} WHERE id = ?"
                 res, record_list = self._db.query_sql(sql, tuple(params), fields)
-                self.__current_municipio = record_list[0]
+                self.__current_municipio = record_list[0]["municipio"]
                 self.__current_provincia = record_list[0]["provincia"]
-                return self.__current_municipio
+                return record_list[0]
 
     def get_current_municipio(self):
         return self.__current_municipio

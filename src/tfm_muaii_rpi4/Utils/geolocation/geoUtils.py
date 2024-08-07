@@ -65,13 +65,13 @@ class GeoUtils:
     def get_offline_max_speed_and_location(self, road_info: dict) -> (int, str):
         #TODO: En el arranque se tendrá que cargar fichero con info de carreteras de la comunidad valenciana y obtener
         # de ahí la información
-        road_type = road_info["tipo_via"]
-        max_speed = self.__convert_offline_road_speed_limit(road_info["clase"], road_type)
-        road_name = road_info["nombre"]
-        municipio = road_info["municipio"]
-        provincia = road_info["provincia"]
-        location_info = f"{road_type} {road_name}, {municipio} ({provincia})"
-        Logs.get_logger().debug(f"La velocidad máxima para {road_type} {road_name} ubicado en {municipio} "
+        road_type: str = road_info["tipo_via"]
+        max_speed: int = self.__convert_offline_road_speed_limit(road_info["clase"], road_type)
+        road_name: str = road_info["nombre"].capitalize()
+        municipio: str = road_info["municipio"].capitalize()
+        provincia: str = road_info["provincia"].capitalize()
+        location_info = f"{road_type.capitalize()} {road_name}, {municipio} ({provincia})"
+        Logs.get_logger().debug(f"La velocidad máxima para {road_type.capitalize()} {road_name} ubicado en {municipio} "
                                 f"({provincia}) es: {max_speed} km/h", extra=__info__)
         return max_speed, location_info
 

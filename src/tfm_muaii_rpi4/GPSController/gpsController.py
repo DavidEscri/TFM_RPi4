@@ -42,6 +42,7 @@ class _GPSController(Service):
                                               extra=__info__)
                     time.sleep(30)
                 break
+            self._municipios_pers.start()
             super().start()
         except Exception as e:
             super().critical_error(e, "start")
@@ -162,7 +163,9 @@ class _GPSController(Service):
 
     def __get_speed_and_location_info(self) -> (int, str):
         if internet_access():
-            return self._geo_utils.get_online_max_speed_and_location(self.__current_coordinates)
+            max_speed, location_info = self._geo_utils.get_online_max_speed_and_location(self.__current_coordinates)
+            self.__update_online_road_persistence(location_info)
+            return max_speed, location_info
         else:
             Logs.get_logger().warning("No hay conexión a internet para realizar la geolocalización", extra=__info__)
             current_municipio = self._municipios_pers.get_current_municipio()
@@ -172,10 +175,18 @@ class _GPSController(Service):
                 road_db_name = self._geo_utils.convert_provincia_to_road_db(provincia)
                 self._roads_pers = RoadPersistenceSingleton(road_db_name)
                 self._roads_pers.start()
-            current_road = self._roads_pers.get_record_by_coordinates(self.__current_coordinates)
-            current_road.update({"provincia": provincia}, {"municipio": record_municipio["municipio"]})
-
+            current_road = self._roads_pers.get_record_by_coordinates(self.__current_coordinates.get_coordinates()[::-1])
+            self.__current_road_name = current_road["nombre"]
+            current_road.update({"provincia": provincia})
+            current_road.update({"municipio": record_municipio["municipio"]})
+            self.__update_offline_road_persistence(current_road)
             return self._geo_utils.get_offline_max_speed_and_location(current_road)
+
+    def __update_online_road_persistence(self, road_info: str):
+        pass
+
+    def __update_offline_road_persistence(self, road_info: dict):
+        pass
 
     def __set_gps_ready(self, value: bool):
         self.__gps_ready = value
