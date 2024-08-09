@@ -29,7 +29,7 @@ class _StartUpDownMgr:
             Logs.get_logger().info(f"Inicio Aplicación {datetime.now()}....", extra=__info__)
             self.env = EnvSingleton()
             self.data_persistence = DataPersistenceMgrSingleton()
-            #self.people_counter = PeopleCounterSingleton()
+            self.people_counter = PeopleCounterSingleton()
             self.display_controller = DisplayControllerSingleton()
             self.gps_controller = GPSControllerSingleton()
             self.accel_controller = AccelControllerSingleton()
@@ -64,14 +64,14 @@ class _StartUpDownMgr:
 
     def _start_services(self):
         self.data_persistence.start()
-        #self.people_counter.start()
+        self.people_counter.start()
         self.gps_controller.start()
         self.display_controller.start()
         self.accel_controller.start()
 
     def _stop_services(self):
         self.data_persistence.stop()
-        #self.people_counter.stop()
+        self.people_counter.stop()
         self.gps_controller.stop()
         self.display_controller.stop()
         self.accel_controller.stop()

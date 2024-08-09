@@ -10,3 +10,5 @@ python-dotenv~=1.0.0
 Pillow~=10.1.0
 luma.oled~=3.13.0
 Rtree~=1.2.0
+typing-extensions~=4.12.2
+picamera2~=0.3.12

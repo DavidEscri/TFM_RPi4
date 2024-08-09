@@ -80,7 +80,8 @@ class DisplayUtils:
             self.__draw_text_lines(draw, info_font, lines, text_x, text_y)
             self.__display_image(image)
             return
-        Logs.get_logger().info("Mostrando imagen de aforo actual en display OLED", extra=__info__)
+        Logs.get_logger().info(f"Mostrando imagen de aforo actual ({current_passengers}/{max_capacity}) "
+                               f"en display OLED", extra=__info__)
         top_text = "Aforo actual:"
         top_info_font = ImageFont.truetype(self.__text_font, 25)
         top_text_bbox = draw.textbbox((0, 0), str(top_text), font=top_info_font)
