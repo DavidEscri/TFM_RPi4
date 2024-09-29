@@ -13,7 +13,7 @@ from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 Logs = LogsSingleton()
 
 
-class NmeaMessages():
+class NmeaMessages:
     GPGGA = "$GPGGA"
     GPGLL = "$GPGLL"
     GPRMC = "$GPRMC"
