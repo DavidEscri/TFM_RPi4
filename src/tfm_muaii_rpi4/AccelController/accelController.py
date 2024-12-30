@@ -35,7 +35,6 @@ class _AccelController(Service):
                     time.sleep(30)
                 break
             super().start()
-            super().start()
         except Exception as e:
             super().critical_error(e, "start")
 

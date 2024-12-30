@@ -66,7 +66,7 @@ class _MunicipiosPersistence(Service, ServiceDB):
         res, record_list = self._db.query_sql(sql, tuple(params), fields)
         self._municipios = [(row[fields[0]], shape(json.loads(row[fields[1]]))) for row in record_list]
 
-    def get_record_municipio(self, coordinates: Coordinates):
+    def get_record_municipio_by_coordinates(self, coordinates: Coordinates):
         fields: list = list()
         fields.append(self._list_fields[self.POS_NAME])
         fields.append(self._list_fields[self.POS_PROVINCIA])
@@ -78,9 +78,10 @@ class _MunicipiosPersistence(Service, ServiceDB):
                 params.append(municipio_id)
                 sql = f"SELECT {', '.join(fields)} FROM {self._table_name} WHERE id = ?"
                 res, record_list = self._db.query_sql(sql, tuple(params), fields)
-                self.__current_municipio = record_list[0]["municipio"]
-                self.__current_provincia = record_list[0]["provincia"]
-                return record_list[0]
+                municipio_record = record_list[0]
+                self.__current_municipio = municipio_record["municipio"]
+                self.__current_provincia = municipio_record["provincia"]
+                return municipio_record
 
     def get_current_municipio(self):
         return self.__current_municipio
