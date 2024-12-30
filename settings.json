@@ -28,6 +28,10 @@
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\DB",
             "RPi4": "/home/pi/TFM_RPi4/resources/DB/"
         },
+        "route_map_path": {
+            "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\recorridos",
+            "RPi4": "/home/pi/TFM_RPi4/resources/recorridos/"
+        },
         "yolo_classes_path": {
             "test": "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII\\resources\\yolo\\classes",
             "RPi4": "/home/pi/TFM_RPi4/resources/yolo/classes"
