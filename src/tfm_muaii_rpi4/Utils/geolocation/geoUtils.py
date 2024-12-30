@@ -9,6 +9,7 @@ import datetime
 import os
 import json
 import geopy.distance
+from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 
 from tfm_muaii_rpi4.DataPersistence.roadsPersistence import RoadsDB
@@ -20,32 +21,40 @@ Logs = LogsSingleton()
 
 
 class Coordinates:
+
     def __init__(self, latitude: float, longitude: float):
-        self.data: dict = {
+        self.__max_next_to_distance: int = 50 # Metros
+        self.__data: dict = {
             "coordinates": (latitude, longitude),
             "timestamp": time.time()
         }
 
     def get_coordinates(self) -> tuple:
-        return self.data["coordinates"]
-
-    def valid_coordinates(self) -> bool:
-        return self.get_coordinates() != (0, 0)
+        return self.__data["coordinates"]
 
     def get_timestamp(self) -> datetime:
-        return self.data["timestamp"]
+        return self.__data["timestamp"]
+
+    def are_valid(self) -> bool:
+        return self.get_coordinates() != (0.0, 0.0)
+
+    def are_next_to(self, other: 'Coordinates') -> bool:
+        coords1 = self.get_coordinates()
+        coords2 = other.get_coordinates()
+        distance_meters = geodesic(coords1, coords2).meters
+        return distance_meters < self.__max_next_to_distance
 
 
 class GeoUtils:
-    def get_online_max_speed_and_location(self, coordenadas: Coordinates) -> (int, str):
+    def get_online_max_speed_and_location(self, coordenadas: Coordinates) -> (int, dict):
         """
         Obtención de la máxima velocidad en km/h de una localizacicón definida por la libreria de geopy
         :param coordenadas: Coordenadas de la localización
         :return: Velocidad en km/h
         """
         max_speed: int = 0
-        location_info: str = ""
-        if not coordenadas.valid_coordinates():
+        location_info: dict = {}
+        if not coordenadas.are_valid():
             return max_speed, location_info
         geolocator = Nominatim(user_agent="my_geocoder")
         location = geolocator.reverse(coordenadas.get_coordinates(), language='es')
@@ -55,22 +64,20 @@ class GeoUtils:
             if "address" in location.raw:
                 road_adress = location.raw["address"]
                 road_name = road_adress["road"] if "road" in road_adress else ""
-                ciudad = road_adress["city"] if "city" in road_adress else road_adress["town"]
+                municipio = road_adress["city"] if "city" in road_adress else road_adress["town"]
                 provincia = road_adress["state_district"] if "state_district" in road_adress else road_adress["province"]
-                location_info = f"{road_name}, {ciudad} ({provincia})"
-                Logs.get_logger().debug(f"La velocidad máxima para {road_name} ubicado en {ciudad} ({provincia}) es: "
+                location_info = {"road_name": road_name, "provincia": provincia, "municipio": municipio}
+                Logs.get_logger().debug(f"La velocidad máxima para {road_name} ubicado en {municipio} ({provincia}) es: "
                                        f"{max_speed} km/h", extra=__info__)
         return max_speed, location_info
 
-    def get_offline_max_speed_and_location(self, road_info: dict) -> (int, str):
-        #TODO: En el arranque se tendrá que cargar fichero con info de carreteras de la comunidad valenciana y obtener
-        # de ahí la información
+    def get_offline_max_speed_and_location(self, road_info: dict) -> (int, dict):
         road_type: str = road_info["tipo_via"]
         max_speed: int = self.__convert_offline_road_speed_limit(road_info["clase"], road_type)
         road_name: str = road_info["nombre"].capitalize()
         municipio: str = road_info["municipio"].capitalize()
         provincia: str = road_info["provincia"].capitalize()
-        location_info = f"{road_type.capitalize()} {road_name}, {municipio} ({provincia})"
+        location_info = {"road_name": f"{road_type.capitalize()} {road_name}", "provincia": municipio, "ciudad": provincia}
         Logs.get_logger().debug(f"La velocidad máxima para {road_type.capitalize()} {road_name} ubicado en {municipio} "
                                 f"({provincia}) es: {max_speed} km/h", extra=__info__)
         return max_speed, location_info
