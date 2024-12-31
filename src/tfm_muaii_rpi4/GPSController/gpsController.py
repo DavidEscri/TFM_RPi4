@@ -78,8 +78,6 @@ class _GPSController(Service):
             self.__check_gps(sentences_to_read=10)
         while not super().need_stop():
             try:
-                # TODO: Añadir método de generación de mapa de coordenadas con Folium cada media hora o en el cambio de municipio.
-                #  Las coordenadas a utilizar son las obtenidas de gpsPersistence
                 if not self.is_gps_ready():
                     self.__check_gps(sentences_to_read=5)
                     super().sleep_period()
