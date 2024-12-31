@@ -189,9 +189,10 @@ class _PeopleCounter(Service):
             self.__smoothed_person_count = (
                     ImageDetectionConfig.FILTER_FACTOR * self.__smoothed_person_count + (1 - ImageDetectionConfig.FILTER_FACTOR) * person_count
             )
-        Logs.get_logger().info(f"Actualizando contador de personas suavizado: {current_smoothed_count} -> {self.get_current_people()}",
-                               extra=__info__)
-        self.__set_current_people()
+        if current_smoothed_count != self.get_current_people():
+            Logs.get_logger().info(f"Actualizando contador de personas suavizado: {current_smoothed_count} -> {self.get_current_people()}",
+                                   extra=__info__)
+            self.__set_current_people()
 
     def __set_current_people(self):
         self._context_vars_mgr.set_context_var(ContextVarsConst.PERSONAS, self.get_current_people())
