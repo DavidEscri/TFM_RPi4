@@ -23,6 +23,15 @@ class RoadsDB:
     DB_NAME_VALENCIA = "db_roads_valencia.db"
     DB_NAME_CASTELLON = "db_roads_castellon.db"
 
+    @staticmethod
+    def convert_provincia_to_road_db(provincia: str):
+        pronvicia_db = {
+            "Alicante": RoadsDB.DB_NAME_ALICANTE,
+            "Valencia": RoadsDB.DB_NAME_VALENCIA,
+            "Castellón": RoadsDB.DB_NAME_CASTELLON
+        }
+        return pronvicia_db.get(provincia, None)
+
 
 class _RoadsPersistence(Service, ServiceDB):
 

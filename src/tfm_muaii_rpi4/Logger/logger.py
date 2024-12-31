@@ -19,7 +19,7 @@ class _Logs:
     WARNING = logging.WARNING
     ERROR = logging.ERROR
     CRITICAL = logging.CRITICAL
-    LOGGER_NAME = "logger_TFM_RPi4"
+    LOGGER_NAME = "logger_TFM_RPi4B"
     FORMATO = "%(asctime)s %(levelname)s %(subsystem)-15s %(module_name)-8s %(version)-3s %(message)s"
 
     def __init__(self):

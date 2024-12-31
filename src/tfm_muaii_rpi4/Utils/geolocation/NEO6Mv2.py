@@ -211,7 +211,7 @@ class NEO6Mv2:
 
     def __process_gpgsv_sentence(self, nmea_sentence: list):
         satelites_totales = nmea_sentence[GPGSVSentence.POS_SATELLITES_IN_VIEW]
-        if len(satelites_totales) == 0:
+        if len(satelites_totales) == 0 or satelites_totales == "00*79":
             return False
         self._context_vars_mgr.set_context_var(ContextVarsConst.SATELITES_GNSS, int(satelites_totales))
         Logs.get_logger().debug(f"Se están viendo un total de {satelites_totales} satelites", extra=__info__)

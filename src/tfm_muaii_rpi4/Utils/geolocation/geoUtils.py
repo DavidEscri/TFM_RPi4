@@ -6,14 +6,10 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import time
 import datetime
-import os
-import json
 import geopy.distance
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 
-from tfm_muaii_rpi4.DataPersistence.roadsPersistence import RoadsDB
-from tfm_muaii_rpi4.Environment.env import EnvSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 
@@ -176,15 +172,6 @@ class GeoUtils:
         :return: Velocidad en kilometros por hora
         """
         return round(speed * 3.6)
-
-    @staticmethod
-    def convert_provincia_to_road_db(provincia: str):
-        pronvicia_db = {
-            "Alicante": RoadsDB.DB_NAME_ALICANTE,
-            "Valencia": RoadsDB.DB_NAME_VALENCIA,
-            "Castellón": RoadsDB.DB_NAME_CASTELLON
-        }
-        return pronvicia_db.get(provincia, None)
 
     # def is_speed_limit_exceeded(self, last_coordinates: Coordinates, current_coordinates: Coordinates) -> bool:
     #     """
