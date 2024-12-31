@@ -8,7 +8,7 @@ import time
 
 from tfm_muaii_rpi4.DataPersistence.gpsPersistence import GpsPersistenceSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
-from tfm_muaii_rpi4.DataPersistence.roadsPersistence import RoadPersistenceSingleton
+from tfm_muaii_rpi4.DataPersistence.roadsPersistence import RoadPersistenceSingleton, RoadsDB
 from tfm_muaii_rpi4.DataPersistence.municipiosPersistence import MunicipiosPersistenceSingleton
 from tfm_muaii_rpi4.DataPersistence.contextVarsMgr import ContextVarsMgrSingleton, ContextVarsConst, DefaultVarsConst
 from tfm_muaii_rpi4.Utils.geolocation.NEO6Mv2 import NEO6Mv2
@@ -33,7 +33,6 @@ class _GPSController(Service):
         self.__gps_module: NEO6Mv2 = None
         self.__current_coordinates: Coordinates = None
         self.__last_coordinates: Coordinates = None
-        self.__gps_ready: bool = False
         self.sleep_period = 10
 
     def start(self):
@@ -90,6 +89,8 @@ class _GPSController(Service):
                     continue
                 if not self.__process_current_coordinates():
                     continue
+                if not self.is_geolocaiton_ready():
+                    self.__set_geolocaiton_ready(is_ready=True)
                 self.__update_vehicle_status()
                 self.__update_location_info()
                 super().sleep_period()
@@ -109,20 +110,29 @@ class _GPSController(Service):
                 self.__set_gps_ready(is_ready=res)
                 time.sleep(0.1)
             except UnicodeDecodeError:
-                Logs.get_logger().error("Sentencia NMEA del módulo GPS incompleta.", extra=__info__)
+                Logs.get_logger().error("No se pudo comprobar el módulo GPS: Sentencia NMEA incompleta.", extra=__info__)
             except Exception as e:
                 self.sleep_period = 10
-                Logs.get_logger().error(f"Error al leer sentencia NMEA del GPS: {e}", extra=__info__)
+                Logs.get_logger().error(f"No se pudo comprobar el módulo GPS: {e}", extra=__info__)
 
     def __read_gps_sentence(self) -> bool:
-        res = self.__gps_module.read_sentence()
-        if res is None:
+        try:
+            res = self.__gps_module.read_sentence()
+            if res is None:
+                return False
+            return res
+        except UnicodeDecodeError:
+            Logs.get_logger().error("La Sentencia NMEA leída está incompleta.", extra=__info__)
             return False
-        return res
+        except Exception as e:
+            self.sleep_period = 10
+            Logs.get_logger().error(f"Error al leer sentencia NMEA del GPS: {e}", extra=__info__)
+            return False
 
     def __set_default_gps_context_vars(self) -> None:
         Logs.get_logger().warning("Cargando valores por defecto para el módulo GPS", extra=__info__)
         self.__set_gps_ready(is_ready=False)
+        self.__set_geolocaiton_ready(is_ready=False)
         self.__current_coordinates = None
         self.context_vars.set_context_var(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
         self.context_vars.set_context_var(ContextVarsConst.VELOCIDAD_ACTUAL, DefaultVarsConst.CURRENT_SPEED)
@@ -173,7 +183,7 @@ class _GPSController(Service):
         record_municipio = self._municipios_pers.get_record_municipio_by_coordinates(self.__current_coordinates)
         provincia = self._municipios_pers.get_current_provincia()
         if self._roads_pers is None or record_municipio["municipio"] != current_municipio:
-            road_db_name = self._geo_utils.convert_provincia_to_road_db(provincia)
+            road_db_name = RoadsDB.convert_provincia_to_road_db(provincia)
             self._roads_pers = RoadPersistenceSingleton(road_db_name)
             self._roads_pers.start()
         current_road = self._roads_pers.get_record_by_coordinates(self.__current_coordinates)
@@ -193,10 +203,16 @@ class _GPSController(Service):
         self.gps_pers.insert_record_location(road_info)
 
     def __set_gps_ready(self, is_ready: bool):
-        self.context_vars.set_context_var(ContextVarsConst.GPS_READY, is_ready)
+        self.context_vars.set_context_var(ContextVarsConst.GPS_MODULE_READY, is_ready)
+
+    def __set_geolocaiton_ready(self, is_ready: bool):
+        self.context_vars.set_context_var(ContextVarsConst.GEOLOCATION_READY, is_ready)
 
     def is_gps_ready(self) -> bool:
-        return self.context_vars.get_context_var(ContextVarsConst.GPS_READY)
+        return self.context_vars.get_context_var(ContextVarsConst.GPS_MODULE_READY)
+
+    def is_geolocaiton_ready(self):
+        self.context_vars.get_context_var(ContextVarsConst.GEOLOCATION_READY)
 
     def get_coordinates(self) -> Coordinates:
         return self.__gps_module.get_coordinates()

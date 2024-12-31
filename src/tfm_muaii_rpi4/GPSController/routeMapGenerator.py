@@ -48,6 +48,9 @@ class _RouteMapGenerator(Service):
 
     def __clean_old_route_maps(self, days: int = 7):
         try:
+            if not os.path.exists(self.__route_map_path):
+                os.makedirs(self.__route_map_path)
+                return
             cutoff_date = datetime.datetime.now() - datetime.timedelta(days=days)
             cutoff_timestamp = cutoff_date.timestamp()
             for file in os.listdir(self.__route_map_path):
@@ -60,13 +63,14 @@ class _RouteMapGenerator(Service):
             Logs.get_logger().error(f"Error en el limpiado de mapas de rutas generadores: {e}", extra=__info__)
 
     def _run(self):
-        while not super().need_stop() and not self.context_vars.get_context_var(ContextVarsConst.GPS_READY):
-            Logs.get_logger().warning("Esperando GPS para iniciar generación de mapa de rutas...")
+        while not super().need_stop() and not self.context_vars.get_context_var(ContextVarsConst.GEOLOCATION_READY):
+            Logs.get_logger().warning("Esperando servicio de geolocalización para iniciar generación de mapa de rutas...",
+                                      extra=__info__)
             super().sleep_period()
         while not super().need_stop():
             try:
-                if not self.context_vars.get_context_var(ContextVarsConst.GPS_READY):
-                    Logs.get_logger().warning("GPS no disponible. Esperando recuperación...")
+                if not self.context_vars.get_context_var(ContextVarsConst.GEOLOCATION_READY):
+                    Logs.get_logger().warning("Geolocalización no disponible. Esperando recuperación...", extra=__info__)
                     self.__last_generated_time = datetime.datetime.now()  # Reiniciar el temporizador
                     self.current_municipio = None
                     super().sleep_period()

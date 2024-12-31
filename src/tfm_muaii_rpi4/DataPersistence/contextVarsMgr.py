@@ -23,7 +23,8 @@ class DefaultVarsConst:
 class ContextVarsConst:
     PERSONAS = "personas"
     MAX_PERSONAS = "max_personas"
-    GPS_READY = "gps_ready"
+    GPS_MODULE_READY = "gps_module_ready"
+    GEOLOCATION_READY = "geolocation_ready"
     COORDENADAS_GPS = "coordenadas_gps"
     VELOCIDAD_ACTUAL = "velocidad_actual"
     VELOCIDAD_MAXIMA = "velocidad_maxima"
@@ -46,7 +47,8 @@ class _ContextVarsMgr(Service):
         self._contextVarDict: dict = {}
         self._contextVarDict.setdefault(ContextVarsConst.PERSONAS, 0)
         self._contextVarDict.setdefault(ContextVarsConst.MAX_PERSONAS, DefaultVarsConst.MAX_VEHICLE_CAPACITY)
-        self._contextVarDict.setdefault(ContextVarsConst.GPS_READY, False)
+        self._contextVarDict.setdefault(ContextVarsConst.GPS_MODULE_READY, False)
+        self._contextVarDict.setdefault(ContextVarsConst.GEOLOCATION_READY, False)
         self._contextVarDict.setdefault(ContextVarsConst.COORDENADAS_GPS, Coordinates(0, 0))
         self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_ACTUAL, DefaultVarsConst.CURRENT_SPEED)
         self._contextVarDict.setdefault(ContextVarsConst.VELOCIDAD_MAXIMA, DefaultVarsConst.MAX_SPEED)
