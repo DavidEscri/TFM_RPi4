@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='tfm_muaii_rpi4',
-    version='0.9.2',
+    version='0.9.3',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
