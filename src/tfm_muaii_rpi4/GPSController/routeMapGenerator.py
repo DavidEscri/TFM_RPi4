@@ -112,9 +112,10 @@ class _RouteMapGenerator(Service):
     def __generate_route_map_by_municipio(self):
         Logs.get_logger().info("El municipio ha cambiado, generando nuevo mapa de rutas", extra=__info__)
         last_municipio_coordinates = self.gps_pers.get_gps_record_by_municipio(self.__last_generated_municipio)
-        if not last_municipio_coordinates:
+        if len(last_municipio_coordinates) == 0:
             Logs.get_logger().warning(f"No se encontraron coordenadas del municipio {self.__last_generated_municipio}",
                                       extra=__info__)
+            self.__last_generated_municipio = self.municipios_pers.get_current_municipio()
             return
         self.__generate_route_map(last_municipio_coordinates)
         self.__last_generated_municipio = self.municipios_pers.get_current_municipio()

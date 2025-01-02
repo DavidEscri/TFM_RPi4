@@ -73,7 +73,7 @@ class GeoUtils:
         road_name: str = road_info["nombre"].capitalize()
         municipio: str = road_info["municipio"].capitalize()
         provincia: str = road_info["provincia"].capitalize()
-        location_info = {"road_name": f"{road_type.capitalize()} {road_name}", "provincia": municipio, "ciudad": provincia}
+        location_info = {"road_name": f"{road_type.capitalize()} {road_name}", "municipio": municipio, "provincia": provincia}
         Logs.get_logger().debug(f"La velocidad máxima para {road_type.capitalize()} {road_name} ubicado en {municipio} "
                                 f"({provincia}) es: {max_speed} km/h", extra=__info__)
         return max_speed, location_info

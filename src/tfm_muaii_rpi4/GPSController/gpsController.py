@@ -193,7 +193,11 @@ class _GPSController(Service):
         return self._geo_utils.get_offline_max_speed_and_location(current_road)
 
     def __update_road_persistence(self, road_info: dict):
-        if road_info["road_name"] != self.gps_pers.get_last_gps_record()["road_name"]:
+        last_gps_record = self.gps_pers.get_last_gps_record()
+        if len(last_gps_record) == 0:
+            self.gps_pers.insert_record_location(road_info)
+            return
+        if road_info["road_name"] != last_gps_record["road_name"]:
             road_info["coordenadas"] = self.__current_coordinates.get_coordinates()
             self.gps_pers.insert_record_location(road_info)
             return
