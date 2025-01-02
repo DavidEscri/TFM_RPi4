@@ -154,15 +154,16 @@ class GeoUtils:
         :param current_coordinates: Coordenadas actuales.
         :return: Velocidad actual
         """
-        if not isinstance(last_coordinates, Coordinates) and not isinstance(current_coordinates, Coordinates):
+        if not isinstance(last_coordinates, Coordinates) or not isinstance(current_coordinates, Coordinates):
             return None
         distance = geopy.distance.geodesic(last_coordinates.get_coordinates(),
                                            current_coordinates.get_coordinates()).m
         time_difference = current_coordinates.get_timestamp() - last_coordinates.get_timestamp()
         if time_difference == 0:
             return 0
-        speed = distance / time_difference
-        return self.__convert_ms_to_kmh(speed)
+        speed_ms = distance / time_difference
+        speed_kmh = self.__convert_ms_to_kmh(speed_ms)
+        return speed_kmh if speed_kmh < 300 else 0
 
     @staticmethod
     def __convert_ms_to_kmh(speed: float) -> int:
