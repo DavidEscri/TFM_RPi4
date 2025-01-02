@@ -5,6 +5,7 @@ __version__ = "1.0"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
 import datetime
+import json
 import os
 
 import folium
@@ -103,7 +104,7 @@ class _RouteMapGenerator(Service):
         now = datetime.datetime.now()
         since_time: datetime = now - self.__route_map_generation_period
         last_time_coordinates = self.gps_pers.get_gps_record_since(since_time)
-        if not last_time_coordinates:
+        if len(last_time_coordinates) == 0:
             Logs.get_logger().warning("No se encontraron coordenadas en el último tramo de tiempo", extra=__info__)
             return
         self.__generate_route_map(last_time_coordinates)
@@ -120,13 +121,13 @@ class _RouteMapGenerator(Service):
         self.__generate_route_map(last_municipio_coordinates)
         self.__last_generated_municipio = self.municipios_pers.get_current_municipio()
 
-    def __generate_route_map(self, gps_record: list[dict]):
-        map_center = gps_record[0]["coordenadas"]
-        route_map = folium.Map(location=map_center, zoom_start=14)
-        coordinates = [coords["coordenadas"] for coords in gps_record]
-        folium.PolyLine(coordinates, color="blue", weight=2.5, opacity=1).add_to(route_map)
-        for coordinate in coordinates:
-            folium.Marker(location=coordinate).add_to(route_map)
+    def __generate_route_map(self, gps_records: list[dict]):
+        map_center_coords = json.loads(gps_records[0]["coordenadas"])
+        route_map = folium.Map(location=map_center_coords, zoom_start=14)
+        all_route_coordinates = [json.loads(coords["coordenadas"]) for coords in gps_records]
+        folium.PolyLine(all_route_coordinates, color="blue", weight=2.5, opacity=1).add_to(route_map)
+        for route_coordinate in all_route_coordinates:
+            folium.Marker(location=route_coordinate).add_to(route_map)
         file_name = f"route_map_{self.__last_generated_municipio}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
         route_map_file = os.path.join(self.__route_map_path, file_name)
         route_map.save(route_map_file)

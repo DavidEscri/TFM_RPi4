@@ -19,7 +19,7 @@ Logs = LogsSingleton()
 class Coordinates:
 
     def __init__(self, latitude: float, longitude: float):
-        self.__max_next_to_distance: int = 50 # Metros
+        self.__max_next_to_distance: int = 100 # Metros
         self.__data: dict = {
             "coordinates": (latitude, longitude),
             "timestamp": time.time()
