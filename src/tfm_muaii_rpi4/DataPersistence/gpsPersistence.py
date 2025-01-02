@@ -4,6 +4,7 @@ __module__ = "gpsPersistence"
 __version__ = "1.0"
 __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __version__}
 
+import json
 import os
 from datetime import datetime
 
@@ -56,6 +57,9 @@ class _GPSPersistence(Service, ServiceDB):
 
     def insert_record_location(self, location_info: dict) -> bool:
         now: datetime = datetime.now()
+        location_info[self._list_fields[self.POS_ID]] = "NULL"
+        coords_json = json.dumps(location_info[self._list_fields[self.POS_COORDENADAS]])
+        location_info[self._list_fields[self.POS_COORDENADAS]] = coords_json
         location_info[self._list_fields[self.POS_DATE_CREATE]] = now
         location_info[self._list_fields[self.POS_DATE_UPDATE]] = now
         return self.insert_record_db(self._table_name, self._list_fields, location_info)

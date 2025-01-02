@@ -175,6 +175,7 @@ class _GPSController(Service):
     def __get_speed_and_location_info(self) -> (int, dict):
         if not internet_access(): # PONER NOT PARA HACER PRUEBAS
             max_speed, location_info = self._geo_utils.get_online_max_speed_and_location(self.__current_coordinates)
+            location_info["coordenadas"] = self.__current_coordinates.get_coordinates()
             self.__update_road_persistence(location_info)
             return max_speed, location_info
 
@@ -189,8 +190,11 @@ class _GPSController(Service):
         current_road = self._roads_pers.get_record_by_coordinates(self.__current_coordinates)
         current_road["provincia"] = provincia
         current_road["municipio"] = record_municipio["municipio"]
-        self.__update_road_persistence(current_road)
-        return self._geo_utils.get_offline_max_speed_and_location(current_road)
+        max_speed, location_info = self._geo_utils.get_offline_max_speed_and_location(current_road)
+        location_info["coordenadas"] = self.__current_coordinates.get_coordinates()
+        self.__update_road_persistence(location_info)
+        return max_speed, location_info
+
 
     def __update_road_persistence(self, road_info: dict):
         last_gps_record = self.gps_pers.get_last_gps_record()

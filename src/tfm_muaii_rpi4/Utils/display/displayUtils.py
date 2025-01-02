@@ -159,7 +159,7 @@ class DisplayUtils:
 
         if speed_limit == DefaultVarsConst.MAX_SPEED:
             image = self.__speed_limit_error(draw, image, current_speed)
-            Logs.get_logger().warning("Mostrando imagen de velocidad actual en display OLED", extra=__info__)
+            Logs.get_logger().info("Mostrando imagen de velocidad actual en display OLED", extra=__info__)
             self.__display_image(image)
             return
 
