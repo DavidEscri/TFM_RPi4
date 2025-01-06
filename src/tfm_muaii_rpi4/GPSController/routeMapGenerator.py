@@ -121,9 +121,9 @@ class _RouteMapGenerator(Service):
         self.__generate_route_map(last_municipio_coordinates)
         self.__last_generated_municipio = self.municipios_pers.get_current_municipio()
 
-    def __generate_route_map(self, gps_records: list[dict]):
+    def __generate_route_map(self, gps_records: list):
         map_center_coords = json.loads(gps_records[0]["coordenadas"])
-        route_map = folium.Map(location=map_center_coords, zoom_start=14)
+        route_map = folium.Map(location=map_center_coords, zoom_start=16)
         all_route_coordinates = [json.loads(coords["coordenadas"]) for coords in gps_records]
         folium.PolyLine(all_route_coordinates, color="blue", weight=2.5, opacity=1).add_to(route_map)
         for route_coordinate in all_route_coordinates:

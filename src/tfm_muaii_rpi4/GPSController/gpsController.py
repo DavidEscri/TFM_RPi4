@@ -89,10 +89,10 @@ class _GPSController(Service):
                     continue
                 if not self.__process_current_coordinates():
                     continue
-                if not self.is_geolocaiton_ready():
-                    self.__set_geolocaiton_ready(is_ready=True)
                 self.__update_vehicle_status()
                 self.__update_location_info()
+                if not self.is_geolocaiton_ready():
+                    self.__set_geolocaiton_ready(is_ready=True)
                 super().sleep_period()
             except Exception as e:
                 Logs.get_logger().error(f"Error hilo GPS: {e}", extra=__info__)
