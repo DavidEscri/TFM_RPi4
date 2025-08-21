@@ -70,6 +70,9 @@ class _ContextVarsMgr(Service):
         except Exception as e:
             super().critical_error(e, "stop")
 
+    def get_context(self) -> dict:
+        return self._contextVarDict
+
     def set_context_var(self, var: str, value: any) -> None:
         self._contextVarDict[var] = value
         os.environ[var] = str(value)

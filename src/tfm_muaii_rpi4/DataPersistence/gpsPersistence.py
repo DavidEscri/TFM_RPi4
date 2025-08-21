@@ -8,6 +8,7 @@ import json
 import os
 from datetime import datetime
 
+from tfm_muaii_rpi4.DataPersistence.contextVarsMgr import ContextVarsMgrSingleton, ContextVarsConst
 from tfm_muaii_rpi4.Environment.env import EnvSingleton
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 from tfm_muaii_rpi4.Utils.utils import Service, ServiceDB
@@ -19,8 +20,8 @@ Logs = LogsSingleton()
 class _GPSPersistence(Service, ServiceDB):
     DB_NAME = "DB_gps.db"
     _table_name: str = "GPS"
-    _list_fields: list = ["id", "coordenadas", "road_name", "municipio", "provincia", "date_create", "date_update"]
-    _list_fields_type: list = ["INTEGER", "JSON", "VARCHAR(50)", "VARCHAR(20)", "VARCHAR(20)", "TIMESTAMP", "TIMESTAMP"]
+    _list_fields: list = ["id", "coordenadas", "road_name", "municipio", "provincia", "context", "date_create", "date_update"]
+    _list_fields_type: list = ["INTEGER", "JSON", "VARCHAR(50)", "VARCHAR(50)", "VARCHAR(50)", "JSON", "TIMESTAMP", "TIMESTAMP"]
     _primary_key: str = "id AUTOINCREMENT"
 
     POS_ID: int = 0
@@ -28,10 +29,12 @@ class _GPSPersistence(Service, ServiceDB):
     POS_ROAD_NAME: int = 2
     POS_MUNICIPIO: int = 3
     POS_PROVINCIA: int = 4
-    POS_DATE_CREATE: int = 5
-    POS_DATE_UPDATE: int = 6
+    POS_CONTEXT: int = 5
+    POS_DATE_CREATE: int = 6
+    POS_DATE_UPDATE: int = 7
 
     def __init__(self):
+        self.context_vars_mgr = ContextVarsMgrSingleton()
         Service.__init__(self, __info__, is_thread=False)
         try:
             env = EnvSingleton()
@@ -60,6 +63,9 @@ class _GPSPersistence(Service, ServiceDB):
         location_info[self._list_fields[self.POS_ID]] = "NULL"
         coords_json = json.dumps(location_info[self._list_fields[self.POS_COORDENADAS]])
         location_info[self._list_fields[self.POS_COORDENADAS]] = coords_json
+        system_context = self.context_vars_mgr.get_context().copy()
+        system_context.pop(ContextVarsConst.COORDENADAS_GPS)
+        location_info[self._list_fields[self.POS_CONTEXT]] = json.dumps(system_context)
         location_info[self._list_fields[self.POS_DATE_CREATE]] = now
         location_info[self._list_fields[self.POS_DATE_UPDATE]] = now
         return self.insert_record_db(self._table_name, self._list_fields, location_info)
