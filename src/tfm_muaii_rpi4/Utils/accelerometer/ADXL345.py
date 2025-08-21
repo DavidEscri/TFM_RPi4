@@ -14,22 +14,28 @@ Logs = LogsSingleton()
 class RegistersADXL345:
     ADDRESS: int = 0x53
 
-    DATA_FORMAT = 0x31
-    BANDWIDTH_RATE_REG = 0x2C
-    POWER_CTL = 0x2D
+    DATA_FORMAT = 0x31              # Data Format Control
+    BANDWIDTH_RATE_REG = 0x2C       # Data rate and power mode control
+    POWER_CTL = 0x2D                # Power-saving features control
+
+    SCALE_MULTIPLIER: float = 0.0039
+    EARTH_GRAVITY: float = 9.80665
+
+    BANDWIDTH_RATE_1600HZ = 0x0F    # Data rate 3200 Hz - Idd 140 μA (Normal operation)
+    BANDWIDTH_RATE_800HZ = 0x0E     # Data rate 1600 Hz - Idd 90 μA (Normal operation)
+    BANDWIDTH_RATE_400HZ = 0x0D     # Data rate 1800 Hz - Idd 140 μA (Normal operation)
+    BANDWIDTH_RATE_200HZ = 0x0C     # Data rate 400 Hz - Idd 140 μA (Normal operation)
+    BANDWIDTH_RATE_100HZ = 0x0B     # Data rate 200 Hz - Idd 140 μA (Normal operation)
+    BANDWIDTH_RATE_50HZ = 0x0A      # Data rate 100 Hz - Idd 140 μA (Normal operation)
+    BANDWIDTH_RATE_25HZ = 0x09      # Data rate 50 Hz - Idd 90 μA (Normal operation)
+
+    LOW_POWER_BANDWIDTH_RATE_200HZ = 0x1C     # Data rate 400 Hz - Idd 90 μA (Low Power operation)
+    LOW_POWER_BANDWIDTH_RATE_100HZ = 0x1B     # Data rate 200 Hz - Idd 60 μA (Low Power operation)
+    LOW_POWER_BANDWIDTH_RATE_50HZ = 0x1A      # Data rate 100 Hz - Idd 50 μA (Low Power operation)
+    LOW_POWER_BANDWIDTH_RATE_25HZ = 0x19      # Data rate 50 Hz - Idd 45 μA (Low Power operation)
+
     ENABLE_MEASURE = 0x08
     DISABLE_MEASURE = 0x00
-
-    SCALE_MULTIPLIER: int = 0.0039
-    EARTH_GRAVITY: int = 9.80665
-
-    BANDWIDTH_RATE_1600HZ = 0x0F
-    BANDWIDTH_RATE_800HZ = 0x0E
-    BANDWIDTH_RATE_400HZ = 0x0D
-    BANDWIDTH_RATE_200HZ = 0x0C
-    BANDWIDTH_RATE_100HZ = 0x0B
-    BANDWIDTH_RATE_50HZ = 0x0A  # Data rate = 100 Hz
-    BANDWIDTH_RATE_25HZ = 0x09
 
     RANGE_2G = 0x00
     RANGE_4G = 0x01
@@ -38,15 +44,17 @@ class RegistersADXL345:
 
     DATAX0 = 0x32
     DATAX1 = 0x33
+
     DATAY0 = 0x34
     DATAY1 = 0x35
+
     DATAZ0 = 0x36
     DATAZ1 = 0x37
 
 
 class ADXL345:
     def __init__(self, bus: smbus2.SMBus):
-        # DATASHEET: https://www.sparkfun.com/datasheets/Sensors/Accelerometer/ADXL345.pdf
+        # DATASHEET: https://www.analog.com/media/en/technical-documentation/data-sheets/adxl345.pdf
         self.__bus = bus
 
     def set_configuration(self):
@@ -82,8 +90,13 @@ class ADXL345:
         """
         ADXL345 address, 0x53(83)
         Select data format register, 0x31(49)
-        0x08(08) -> 00001000
-        Self test disabled, 4-wire SPI interface, Full resolution, right justified mode, Range = +/-2g
+        0x08(08) -> 0   -> Self test disabled
+                    0   -> 4-wire SPI interface
+                    0   -> IntInverter active high
+                    0   -> Siempre a 0
+                    1   -> Full resolution
+                    0   -> right justified mode (LSB)
+                    00  -> Range = +/-2g
         """
         try:
             self.__bus.write_byte_data(RegistersADXL345.ADDRESS, RegistersADXL345.DATA_FORMAT, 0x08)
@@ -102,7 +115,7 @@ class ADXL345:
         of readings in sleep mode.
 
         Disable: 0x00(00) -> 00000000
-        Inactivity and activity are concurrent, auto sleep disabled, measurement enabled, sleep mode, frequency of 8 Hz
+        Inactivity and activity are concurrent, auto sleep disabled, measurement disenabled (Standby mode), sleep mode, frequency of 8 Hz
         of readings in sleep mode.
         """
         try:
