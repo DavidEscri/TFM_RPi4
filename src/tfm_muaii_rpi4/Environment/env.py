@@ -42,7 +42,7 @@ class _Env:
             self._env = env
         self.app_path: str = os.getenv("APP_SETTINGS_PATH")
         if self.app_path is None:
-            self.app_path = "D:\\PyCharm Community Edition\\Proyectos\\TFM_MUAII"
+            self.app_path = "D:\\Proyectos Python\\TFM_MUAII"
         self.setting_path = os.path.join(self.app_path, 'settings.json')
         with open(self.setting_path, 'r') as f:
             setting_dict = json.load(f)

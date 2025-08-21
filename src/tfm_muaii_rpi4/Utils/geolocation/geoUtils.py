@@ -7,7 +7,6 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 import time
 import datetime
 import geopy.distance
-from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 
 from tfm_muaii_rpi4.Logger.logger import LogsSingleton
@@ -25,10 +24,10 @@ class Coordinates:
             "timestamp": time.time()
         }
 
-    def get_coordinates(self) -> tuple:
+    def get_coordinates(self) -> (float, float):
         return self.__data["coordinates"]
 
-    def get_timestamp(self) -> datetime:
+    def get_timestamp(self) -> float:
         return self.__data["timestamp"]
 
     def are_valid(self) -> bool:
@@ -37,7 +36,7 @@ class Coordinates:
     def are_next_to(self, other: 'Coordinates') -> bool:
         coords1 = self.get_coordinates()
         coords2 = other.get_coordinates()
-        distance_meters = geodesic(coords1, coords2).meters
+        distance_meters = geopy.distance.geodesic(coords1, coords2).meters
         return distance_meters < self.__max_next_to_distance
 
 

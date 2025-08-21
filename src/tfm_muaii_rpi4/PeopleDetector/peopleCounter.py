@@ -6,7 +6,6 @@ __info__ = {"subsystem": __subsystem__, "module_name": __module__, "version": __
 
 import os
 import cv2
-import torch
 import time
 import yaml
 

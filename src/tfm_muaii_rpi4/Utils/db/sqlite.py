@@ -26,7 +26,7 @@ class SqlUtils:
             connection.commit()
             check = True
         except Exception as ex:
-            Logs.get_logger().error("Error al insertar en la base de datos: %s", ex, exc_info=True, extra=__file__)
+            Logs.get_logger().error("Error al insertar en la base de datos: %s", ex, exc_info=True, extra=__info__)
         finally:
             if connection:
                 connection.close()
@@ -42,7 +42,7 @@ class SqlUtils:
             connection.commit()
             check = True
         except Exception as ex:
-            Logs.get_logger().error("Error al actualizar en la base de datos: %s", ex, exc_info=True, extra=__file__)
+            Logs.get_logger().error("Error al actualizar en la base de datos: %s", ex, exc_info=True, extra=__info__)
         finally:
             if connection:
                 connection.close()
@@ -67,7 +67,7 @@ class SqlUtils:
             check = [True, list_res]
         except Exception as ex:
             Logs.get_logger().error("Error al obtener el registro desde la DB: %s", ex, exc_info=True,
-                                    extra=__file__)
+                                    extra=__info__)
         finally:
             if connection:
                 connection.close()
@@ -83,11 +83,8 @@ class SqlUtils:
             connection.commit()
             check = True
         except Exception as ex:
-            Logs.get_logger().error("Error al crear DB: %s", ex, exc_info=True, extra=__file__)
+            Logs.get_logger().error("Error al crear DB: %s", ex, exc_info=True, extra=__info__)
         finally:
             if connection:
                 connection.close()
         return check
-
-    def get_conn(self) -> Connection:
-        return sqlite3.connect(self._path)

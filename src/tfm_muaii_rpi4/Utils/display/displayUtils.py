@@ -12,7 +12,6 @@ from tfm_muaii_rpi4.Logger.logger import LogsSingleton
 
 Logs = LogsSingleton()
 
-
 class DisplayOLEDConfig:
     # Tamaño de la pantalla OLED (128 x 128)
     WIDTH = 128

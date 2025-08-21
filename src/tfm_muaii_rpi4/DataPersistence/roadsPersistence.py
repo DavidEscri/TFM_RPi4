@@ -20,8 +20,8 @@ Logs = LogsSingleton()
 
 class RoadsDB:
     DB_NAME_ALICANTE = "DB_roads_alicante.db"
-    DB_NAME_VALENCIA = "db_roads_valencia.db"
-    DB_NAME_CASTELLON = "db_roads_castellon.db"
+    DB_NAME_VALENCIA = "DB_roads_valencia.db"
+    DB_NAME_CASTELLON = "DB_roads_castellon.db"
 
     @staticmethod
     def convert_provincia_to_road_db(provincia: str):

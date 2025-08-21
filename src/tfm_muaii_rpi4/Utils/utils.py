@@ -117,7 +117,7 @@ class ServiceDB:
         else:
             return True
 
-    def insert_record_db(self, table_name: str, list_fields: list, record: dict) -> (bool, int):
+    def insert_record_db(self, table_name: str, list_fields: list, record: dict) -> bool:
         """
         Método abstracto para insertar un registro en la DB
         """
@@ -142,7 +142,7 @@ class ServiceDB:
         return self._db.insert_sql(sql, tuple(params))
 
 
-def internet_access(host="8.8.8.8", port=53, timeout=1):
+def internet_access(host: str = "8.8.8.8", port=53, timeout=1):
     try:
         socket.setdefaulttimeout(timeout)
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))

@@ -55,7 +55,9 @@ class _PeoplePersistence(Service, ServiceDB):
 
     def insert_current_people(self, record: dict) -> bool:
         now = datetime.now()
+        record[self._list_fields[self.POS_ID]] = "NULL"
         record[self._list_fields[self.POS_DATE_CREATE]] = now
+        record[self._list_fields[self.POS_DATE_UPDATE]] = now
         return self.insert_record_db(self._table_name, self._list_fields, record)
 
     def get_record_by_municipio(self, municipio: str) -> (bool, list):
