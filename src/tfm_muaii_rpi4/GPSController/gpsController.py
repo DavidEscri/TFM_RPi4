@@ -91,8 +91,6 @@ class _GPSController(Service):
                     continue
                 self.__update_vehicle_status()
                 self.__update_location_info()
-                if not self.is_geolocaiton_ready():
-                    self.__set_geolocaiton_ready(is_ready=True)
                 super().sleep_period()
             except Exception as e:
                 Logs.get_logger().error(f"Error hilo GPS: {e}", extra=__info__)
@@ -171,28 +169,29 @@ class _GPSController(Service):
         max_speed, location_info = self.__get_speed_and_location_info()
         self.context_vars.set_context_var(ContextVarsConst.VELOCIDAD_MAXIMA, max_speed)
         self.context_vars.set_context_var(ContextVarsConst.UBICACION_INFO, location_info)
+        if not self.is_geolocaiton_ready():
+            self.__set_geolocaiton_ready(is_ready=True)
+        self.__update_road_persistence(location_info)
 
     def __get_speed_and_location_info(self) -> (int, dict):
         if not internet_access(): # PONER NOT PARA HACER PRUEBAS
             max_speed, location_info = self._geo_utils.get_online_max_speed_and_location(self.__current_coordinates)
             location_info["coordenadas"] = self.__current_coordinates.get_coordinates()
-            self.__update_road_persistence(location_info)
             return max_speed, location_info
 
         Logs.get_logger().warning("No hay conexión a internet para realizar la geolocalización", extra=__info__)
-        current_municipio = self._municipios_pers.get_current_municipio()
+        current_provincia = self._municipios_pers.get_current_provincia()
         record_municipio = self._municipios_pers.get_record_municipio_by_coordinates(self.__current_coordinates)
-        provincia = self._municipios_pers.get_current_provincia()
-        if self._roads_pers is None or record_municipio["municipio"] != current_municipio:
-            road_db_name = RoadsDB.convert_provincia_to_road_db(provincia)
+        gps_provincia = record_municipio.get("provincia", "")
+        if self._roads_pers is None or gps_provincia != current_provincia:
+            road_db_name = RoadsDB.convert_provincia_to_road_db(gps_provincia)
             self._roads_pers = RoadPersistenceSingleton(road_db_name)
             self._roads_pers.start()
         current_road = self._roads_pers.get_record_by_coordinates(self.__current_coordinates)
-        current_road["provincia"] = provincia
-        current_road["municipio"] = record_municipio["municipio"]
+        current_road["provincia"] = gps_provincia
+        current_road["municipio"] = record_municipio.get("municipio", "")
         max_speed, location_info = self._geo_utils.get_offline_max_speed_and_location(current_road)
         location_info["coordenadas"] = self.__current_coordinates.get_coordinates()
-        self.__update_road_persistence(location_info)
         return max_speed, location_info
 
 
