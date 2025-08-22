@@ -70,7 +70,7 @@ class _GPSPersistence(Service, ServiceDB):
         location_info[self._list_fields[self.POS_DATE_UPDATE]] = now
         return self.insert_record_db(self._table_name, self._list_fields, location_info)
 
-    def get_last_gps_record(self):
+    def get_last_gps_record(self) -> dict:
         fields: list = list()
         params: list = list()
         for i in range(0, len(self._list_fields)):
@@ -78,7 +78,7 @@ class _GPSPersistence(Service, ServiceDB):
         sql = f"SELECT {', '.join(fields)} FROM {self._table_name} ORDER BY id DESC LIMIT 1"
         res, record_list = self._db.query_sql(sql, tuple(params), fields)
         if not res or len(record_list) == 0:
-            return []
+            return {}
         return record_list[0]
 
     def get_gps_record_since(self, since_time: datetime):
