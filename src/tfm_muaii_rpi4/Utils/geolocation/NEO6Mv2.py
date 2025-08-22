@@ -110,6 +110,7 @@ class NEO6Mv2:
         self.__timeout = timeout
         self.__serial: Serial = None
         self.__current_coordinates: Coordinates = None
+        self.__valid_fix: bool = False
         self._context_vars_mgr = ContextVarsMgrSingleton()
 
     def open(self) -> bool:
@@ -163,6 +164,7 @@ class NEO6Mv2:
         valid_fix, fix_type = self.__is_valid_fix(fix_indicator)
         # if len(fix_type) > 0:
         #     Logs.get_logger().debug(f"Modo GPS (GPGGA): {fix_type}", extra=__info__)
+        self.__valid_fix = valid_fix
         if not valid_fix:
             return False
         latitude = nmea_sentence[GPGGASentence.POS_LATITUDE]
@@ -185,13 +187,13 @@ class NEO6Mv2:
         # Logs.get_logger().debug(f"Modo GPGLL: {mode_type}", extra=__info__)
         if not valid_mode:
             return False
-        latitude = nmea_sentence[GPGLLSentence.POS_LATITUDE]
-        latitude_indicator = nmea_sentence[GPGLLSentence.POS_LATITUDE_INDICATOR]
-        longitude = nmea_sentence[GPGLLSentence.POS_LONGITUDE]
-        longitude_indicator = nmea_sentence[GPGLLSentence.POS_LONGITUDE_INDICATOR]
-        latitude, longitude = self.__convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
-        self.__save_coordinates(latitude, longitude)
-        Logs.get_logger().debug(f"Coordenadas GPS (GPGLL): {latitude} {longitude}", extra=__info__)
+        #latitude = nmea_sentence[GPGLLSentence.POS_LATITUDE]
+        #latitude_indicator = nmea_sentence[GPGLLSentence.POS_LATITUDE_INDICATOR]
+        #longitude = nmea_sentence[GPGLLSentence.POS_LONGITUDE]
+        #longitude_indicator = nmea_sentence[GPGLLSentence.POS_LONGITUDE_INDICATOR]
+        #latitude, longitude = self.__convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
+        #self.__save_coordinates(latitude, longitude)
+        #Logs.get_logger().debug(f"Coordenadas GPS (GPGLL): {latitude} {longitude}", extra=__info__)
         return True
 
     def __process_gprmc_sentence(self, nmea_sentence: list):
@@ -200,13 +202,14 @@ class NEO6Mv2:
         # Logs.get_logger().debug(f"Modo GPRMC: {mode_type}", extra=__info__)
         if not valid_mode:
             return False
-        latitude = nmea_sentence[GPRMCSentence.POS_LATITUDE]
-        latitude_indicator = nmea_sentence[GPRMCSentence.POS_LATITUDE_INDICATOR]
-        longitude = nmea_sentence[GPRMCSentence.POS_LONGITUDE]
-        longitude_indicator = nmea_sentence[GPRMCSentence.POS_LONGITUDE_INDICATOR]
-        latitude, longitude = self.__convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
-        self.__save_coordinates(latitude, longitude)
-        Logs.get_logger().debug(f"Coordenadas GPS (GPRMC): {latitude} {longitude}", extra=__info__)
+        if not self.__valid_fix:
+            latitude = nmea_sentence[GPRMCSentence.POS_LATITUDE]
+            latitude_indicator = nmea_sentence[GPRMCSentence.POS_LATITUDE_INDICATOR]
+            longitude = nmea_sentence[GPRMCSentence.POS_LONGITUDE]
+            longitude_indicator = nmea_sentence[GPRMCSentence.POS_LONGITUDE_INDICATOR]
+            latitude, longitude = self.__convert_coordinates(latitude, latitude_indicator, longitude, longitude_indicator)
+            self.__save_coordinates(latitude, longitude)
+            Logs.get_logger().debug(f"Coordenadas GPS (GPRMC): {latitude} {longitude}", extra=__info__)
         return True
 
     def __process_gpgsv_sentence(self, nmea_sentence: list):
