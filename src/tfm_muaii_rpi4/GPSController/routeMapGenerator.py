@@ -246,18 +246,6 @@ class _RouteMapGenerator(Service):
         self.__generate_route_map(last_municipio_coordinates)
         self.__last_generated_municipio = self.municipios_pers.get_current_municipio()
 
-    # def __generate_route_map_old(self, gps_records: list):
-    #     map_center_coords = json.loads(gps_records[0]["coordenadas"])
-    #     route_map = folium.Map(location=map_center_coords, zoom_start=16)
-    #     all_route_coordinates = [json.loads(coords["coordenadas"]) for coords in gps_records]
-    #     folium.PolyLine(all_route_coordinates, color="blue", weight=2.5, opacity=1).add_to(route_map)
-    #     for route_coordinate in all_route_coordinates:
-    #         folium.Marker(location=route_coordinate).add_to(route_map)
-    #     file_name = f"route_map_{self.__last_generated_municipio}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
-    #     route_map_file = os.path.join(self.__route_map_path, file_name)
-    #     route_map.save(route_map_file)
-    #     Logs.get_logger().info(f"Generado mapa de ruta {file_name}", extra=__info__)
-
     def __generate_route_map(self, gps_records: list):
         route_map: RouteMapBuilder = RouteMapBuilder(gps_records)
         municipio: str = self.__last_generated_municipio if len(self.__last_generated_municipio) > 0 else self.municipios_pers.get_current_municipio()
